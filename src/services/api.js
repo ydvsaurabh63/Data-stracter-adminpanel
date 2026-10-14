@@ -1,8 +1,5 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:5000/api'
-    : 'https://data-stracter-backend.onrender.com/api');
+  import.meta.env.VITE_API_URL || 'https://data-stracter-backend.onrender.com/api';
 
 const getHeaders = (isMultipart = false) => {
   const token = localStorage.getItem('restaurant_token');
