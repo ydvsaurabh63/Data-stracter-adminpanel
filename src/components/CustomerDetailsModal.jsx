@@ -157,7 +157,7 @@ export const CustomerDetailsModal = ({ customerId, onClose, onSendOffer }) => {
                     boxShadow: '0 0 10px rgba(245, 158, 11, 0.2)'
                   }}>
                     <Crown size={12} fill="#fbbf24" color="#fbbf24" />
-                    <span>VIP GUEST</span>
+                    <span>VIP CUSTOMER</span>
                   </span>
                 )}
 
@@ -189,7 +189,7 @@ export const CustomerDetailsModal = ({ customerId, onClose, onSendOffer }) => {
                     color: '#38bdf8',
                     border: '1px solid rgba(56, 189, 248, 0.3)'
                   }}>
-                    NEW GUEST
+                    NEW CUSTOMER
                   </span>
                 )}
 
@@ -418,7 +418,7 @@ export const CustomerDetailsModal = ({ customerId, onClose, onSendOffer }) => {
                     <td colSpan={5} style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
                       <div style={{ fontSize: '1.4rem', marginBottom: '6px' }}>🧾</div>
                       <div style={{ fontWeight: 700, color: '#334155' }}>No receipts on record</div>
-                      <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>Scan a bill to add invoices to this guest.</div>
+                      <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>Scan a bill to add invoices to this customer.</div>
                     </td>
                   </tr>
                 ) : (

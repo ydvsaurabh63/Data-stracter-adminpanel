@@ -403,9 +403,9 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
                 onChange={(e) => setTargetGroup(e.target.value)}
                 style={{ padding: '12px 14px', fontSize: '0.95rem' }}
               >
-                <option value="inactive">⚠️ Inactive Diners (Haven't visited in &gt; 20 days)</option>
-                <option value="vip">⭐️ VIP Regular Diners (5+ visits)</option>
-                <option value="all">👥 All Registered Diners</option>
+                <option value="inactive">⚠️ Inactive Customers (Haven't visited in &gt; 20 days)</option>
+                <option value="vip">⭐️ VIP Regular Customers (5+ visits)</option>
+                <option value="all">👥 All Registered Customers</option>
               </select>
             </div>
           )}

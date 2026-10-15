@@ -142,7 +142,7 @@ export const Sidebar = ({ currentTab, setCurrentTab, activeClient, onGoToSuperAd
         <div className="sidebar-footer">
           <button className="sidebar-logout-btn" onClick={logout} title="Sign Out">
             <LogOut size={16} />
-            <span>Sign Out (Client)</span>
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>

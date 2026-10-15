@@ -157,7 +157,7 @@ export const CustomersPage = ({ onSendOfferToCustomer }) => {
                             className="btn btn-secondary"
                             style={{ padding: '6px 12px', fontSize: '0.8rem' }}
                             onClick={() => setSelectedCustomerId(cust._id)}
-                            title="View all scanned bills and dishes"
+                            title="View all scanned bills and items"
                           >
                             <History size={14} /> View History
                           </button>

@@ -101,7 +101,7 @@ export const LoginPage = ({ onLogin }) => {
             margin: 0,
             fontWeight: 400,
           }}>
-            Multi-Tenant Restaurant & Client Management
+            Multi-Business Client Management Portal
           </p>
         </div>
 

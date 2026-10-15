@@ -6,7 +6,6 @@ import {
   Sparkles,
   CheckCircle,
   AlertCircle,
-  FileText,
   Zap,
   Users,
   ShieldCheck,
@@ -144,110 +143,6 @@ export const ScanBillPage = ({ onBillSaved, activeClient }) => {
       setCapturedImage(URL.createObjectURL(file));
       stopCamera();
     }
-  };
-
-  // Generate Sample Demo Receipt On-the-Fly (For Instant Testing)
-  const handleLoadSampleBill = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 600;
-    canvas.height = 800;
-    const ctx = canvas.getContext('2d');
-
-    // Background paper
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, 600, 800);
-
-    // Header
-    ctx.fillStyle = '#0f172a';
-    ctx.font = 'bold 26px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(currentRestaurantName, 300, 60);
-
-    ctx.font = '14px sans-serif';
-    ctx.fillStyle = '#64748b';
-    ctx.fillText('Tax Invoice • Table #04 • Dine-In', 300, 90);
-    ctx.fillText('Guest: Rahul Sharma | 📞 9876543210', 300, 115);
-
-    // Divider
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(40, 140);
-    ctx.lineTo(560, 140);
-    ctx.stroke();
-
-    // Table Header
-    ctx.setLineDash([]);
-    ctx.textAlign = 'left';
-    ctx.font = 'bold 15px sans-serif';
-    ctx.fillStyle = '#1e293b';
-    ctx.fillText('ITEM', 50, 170);
-    ctx.fillText('QTY', 330, 170);
-    ctx.textAlign = 'right';
-    ctx.fillText('PRICE (₹)', 550, 170);
-
-    // Items
-    ctx.font = '15px sans-serif';
-    ctx.fillStyle = '#334155';
-    const sampleItems = [
-      { name: 'Paneer Butter Masala', qty: 2, price: 560 },
-      { name: 'Garlic Naan Butter', qty: 4, price: 240 },
-      { name: 'Dal Makhani Special', qty: 1, price: 280 },
-      { name: 'Jeera Rice Bowl', qty: 2, price: 220 },
-      { name: 'Fresh Mint Lime Soda', qty: 3, price: 180 },
-    ];
-
-    let y = 205;
-    sampleItems.forEach((item) => {
-      ctx.textAlign = 'left';
-      ctx.fillText(item.name, 50, y);
-      ctx.fillText(`x${item.qty}`, 335, y);
-      ctx.textAlign = 'right';
-      ctx.fillText(`₹${item.price}`, 550, y);
-      y += 32;
-    });
-
-    // Divider
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(40, y + 10);
-    ctx.lineTo(560, y + 10);
-    ctx.stroke();
-
-    // Totals
-    ctx.setLineDash([]);
-    ctx.font = '15px sans-serif';
-    ctx.fillStyle = '#475569';
-    ctx.fillText('Subtotal:', 400, y + 40);
-    ctx.fillText('₹1,480', 550, y + 40);
-
-    ctx.fillText('GST & Taxes (5%):', 400, y + 70);
-    ctx.fillText('₹74', 550, y + 70);
-
-    ctx.font = 'bold 20px sans-serif';
-    ctx.fillStyle = '#0f172a';
-    ctx.fillText('GRAND TOTAL:', 400, y + 110);
-    ctx.fillText('₹1,554', 550, y + 110);
-
-    // Footer
-    ctx.font = 'italic 14px sans-serif';
-    ctx.fillStyle = '#94a3b8';
-    ctx.textAlign = 'center';
-    ctx.fillText('Thank you for dining with us! Visit again.', 300, 720);
-
-    canvas.toBlob(
-      (blob) => {
-        if (blob) {
-          setCapturedBlob(blob);
-          setCapturedImage(URL.createObjectURL(blob));
-          stopCamera();
-        }
-      },
-      'image/jpeg',
-      0.95
-    );
   };
 
   // Retake / Reset
@@ -493,29 +388,16 @@ export const ScanBillPage = ({ onBillSaved, activeClient }) => {
                   <span>Start Camera</span>
                 </button>
 
-                <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={handleLoadSampleBill}
-                    style={{ flex: 1, fontSize: '0.82rem', padding: '9px 6px', justifyContent: 'center' }}
-                    title="Generate instant demo receipt"
-                  >
-                    <FileText size={14} color="#f59e0b" />
-                    <span>1-Click Sample</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => fileInputRef.current?.click()}
-                    style={{ flex: 1, fontSize: '0.82rem', padding: '9px 6px', justifyContent: 'center' }}
-                    title="Upload receipt image from device"
-                  >
-                    <Upload size={14} />
-                    <span>Upload File</span>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{ width: '100%', fontSize: '0.88rem', padding: '10px 16px', justifyContent: 'center' }}
+                  title="Upload receipt image from device"
+                >
+                  <Upload size={16} />
+                  <span>Upload File</span>
+                </button>
               </div>
             )}
           </div>
@@ -547,19 +429,6 @@ export const ScanBillPage = ({ onBillSaved, activeClient }) => {
                   Tap to browse file or drag photo of receipt here (JPEG, PNG)
                 </div>
 
-                <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    style={{ fontSize: '0.82rem', padding: '6px 14px' }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleLoadSampleBill();
-                    }}
-                  >
-                    <FileText size={14} color="#f59e0b" /> 1-Click Sample Bill
-                  </button>
-                </div>
               </div>
             ) : (
               /* Upload Preview Area */
@@ -574,7 +443,7 @@ export const ScanBillPage = ({ onBillSaved, activeClient }) => {
                   <div className="scanner-extracting-overlay">
                     <div className="scanner-spinner"></div>
                     <div style={{ fontWeight: 700, fontSize: '1rem', color: '#f8fafc' }}>
-                      Extracting Bill with LandingAI...
+                      Extracting Bill with AI...
                     </div>
                   </div>
                 )}
@@ -620,17 +489,6 @@ export const ScanBillPage = ({ onBillSaved, activeClient }) => {
                   <div className="shutter-inner-btn">
                     <Camera size={22} />
                   </div>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={handleLoadSampleBill}
-                  style={{ borderRadius: '9999px', padding: '10px 18px', fontSize: '0.86rem' }}
-                  title="Test with Sample Bill"
-                >
-                  <FileText size={16} color="#f59e0b" />
-                  <span>Sample</span>
                 </button>
               </div>
             ) : (

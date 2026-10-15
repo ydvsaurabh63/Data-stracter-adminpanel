@@ -474,7 +474,7 @@ export const SuperAdminPage = ({
         <div className="super-admin-empty">
           <Building2 size={48} color="#64748b" />
           <h3>No Clients Found</h3>
-          <p>Create your first restaurant client to start managing multiple workspaces.</p>
+          <p>Create your first client workspace to start managing multiple businesses.</p>
           <button
             type="button"
             className="btn btn-primary"

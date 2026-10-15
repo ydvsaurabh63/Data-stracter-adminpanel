@@ -130,7 +130,7 @@ function AppContent() {
           fontSize: '1.2rem',
         }}
       >
-        Loading Restaurant Platform...
+        Loading Business Platform...
       </div>
     );
   }

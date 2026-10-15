@@ -271,11 +271,11 @@ export const DashboardPage = ({ onNavigate }) => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px', fontSize: '0.78rem', color: '#34d399' }}>
             <TrendingUp size={13} />
-            <span>{repeatCustomers} Returning Diners</span>
+            <span>{repeatCustomers} Returning Customers</span>
           </div>
         </div>
 
-        {/* Card 3: Inactive Diners */}
+        {/* Card 3: Inactive Customers */}
         <div style={{
           background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.8) 0%, rgba(10, 14, 23, 0.95) 100%)',
           border: '1px solid rgba(244, 63, 94, 0.2)',
@@ -288,7 +288,7 @@ export const DashboardPage = ({ onNavigate }) => {
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg, #f43f5e 0%, transparent 100%)' }}></div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
             <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Inactive Diners
+              Inactive Customers
             </span>
             <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(244, 63, 94, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <UserX size={18} color="#f43f5e" />
@@ -330,7 +330,7 @@ export const DashboardPage = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* 3. Inactive Diners Alert Banner (if any) */}
+      {/* 3. Inactive Customers Alert Banner (if any) */}
       {inactiveCustomers > 0 && (
         <div style={{
           background: 'linear-gradient(90deg, rgba(244, 63, 94, 0.12) 0%, rgba(244, 63, 94, 0.04) 100%)',
@@ -348,7 +348,7 @@ export const DashboardPage = ({ onNavigate }) => {
             <span style={{ fontSize: '1.2rem' }}>⚠️</span>
             <div>
               <div style={{ fontWeight: 700, fontSize: '0.94rem', color: '#fecdd3' }}>
-                {inactiveCustomers} customers haven't dined in the last 20 days
+                {inactiveCustomers} customers haven't visited in the last 20 days
               </div>
               <div style={{ fontSize: '0.8rem', color: '#fda4af' }}>
                 Re-engage them with a quick 15% OFF WhatsApp campaign to boost repeat revenue.

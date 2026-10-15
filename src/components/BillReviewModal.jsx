@@ -124,8 +124,8 @@ export const BillReviewModal = ({ extractedData, onClose, onSaved }) => {
 
           <div style={{ fontWeight: 700, fontSize: '0.9rem', color: customerMatch.isExisting ? '#fbbf24' : '#a5b4fc' }}>
             {customerMatch.isExisting
-              ? `Returning Guest (Visit #${customerMatch.previousVisits + 1}) • ₹${customerMatch.previousTotalSpent.toLocaleString('en-IN')} spent`
-              : 'New Guest (1st Visit)'}
+              ? `Returning Customer (Visit #${customerMatch.previousVisits + 1}) • ₹${customerMatch.previousTotalSpent.toLocaleString('en-IN')} spent`
+              : 'New Customer (1st Visit)'}
           </div>
         </div>
 
@@ -180,7 +180,7 @@ export const BillReviewModal = ({ extractedData, onClose, onSaved }) => {
                   style={{ flex: 3, minWidth: '95px', padding: '6px 8px', fontSize: '0.85rem' }}
                   value={item.name}
                   onChange={(e) => handleItemChange(idx, 'name', e.target.value)}
-                  placeholder="Dish name"
+                  placeholder="Item / Product name"
                 />
                 <input
                   type="number"
