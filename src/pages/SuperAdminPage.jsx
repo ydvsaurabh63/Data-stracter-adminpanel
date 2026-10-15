@@ -571,52 +571,42 @@ export const SuperAdminPage = ({
                   )}
                 </div>
 
-                {/* Metrics Row */}
-                <div className="client-metrics-row">
-                  <div className="metric-box bills">
-                    <span className="metric-num">{client.billsCount || 0}</span>
-                    <span className="metric-tag">Bills Scanned</span>
-                  </div>
-                  <div className="metric-box revenue">
-                    <span className="metric-num">₹{(client.totalRevenue || 0).toLocaleString('en-IN')}</span>
-                    <span className="metric-tag">Total Revenue</span>
-                  </div>
-                  <div className="metric-box customers">
-                    <span className="metric-num">{client.customersCount || 0}</span>
-                    <span className="metric-tag">Customers</span>
-                  </div>
-                </div>
-
-                {/* Actions Bar */}
-                <div className="client-actions-bar">
+                {/* Actions Bar: Edit & Delete Only */}
+                <div className="client-actions-bar" style={{ display: 'flex', gap: '10px', paddingTop: '16px' }}>
                   <button
                     type="button"
-                    className="client-launch-btn"
-                    onClick={() => onSelectClient(client)}
-                    title={`Open and work inside ${client.name}'s workspace`}
+                    className="btn btn-secondary"
+                    style={{ flex: 1, padding: '10px 14px', fontSize: '0.88rem', justifyContent: 'center', gap: '8px' }}
+                    onClick={() => handleOpenEditModal(client)}
+                    title="Edit Client Details"
                   >
-                    <ExternalLink size={16} />
-                    <span>Enter Workspace</span>
+                    <Edit2 size={15} />
+                    <span>Edit</span>
                   </button>
 
-                  <div className="client-secondary-actions">
-                    <button
-                      type="button"
-                      className="client-icon-action edit"
-                      onClick={() => handleOpenEditModal(client)}
-                      title="Edit Client Information"
-                    >
-                      <Edit2 size={15} />
-                    </button>
-                    <button
-                      type="button"
-                      className="client-icon-action delete"
-                      onClick={() => handleDeleteClient(client)}
-                      title="Delete Client"
-                    >
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{
+                      flex: 1,
+                      padding: '10px 14px',
+                      fontSize: '0.88rem',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      background: 'rgba(239, 68, 68, 0.12)',
+                      border: '1px solid rgba(239, 68, 68, 0.35)',
+                      color: '#fca5a5',
+                      borderRadius: 'var(--radius-md)',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                    onClick={() => handleDeleteClient(client)}
+                    title="Delete Client"
+                  >
+                    <Trash2 size={15} />
+                    <span>Delete</span>
+                  </button>
                 </div>
               </div>
             );
