@@ -23,9 +23,10 @@ import {
   LogOut,
   User,
   FileText,
-  Store,
   Lock,
   Key,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -195,17 +196,48 @@ export const SuperAdminPage = ({
     setIsCreateModalOpen(true);
   };
 
+  const [showClientPassword, setShowClientPassword] = useState(false);
+
   const handleSaveClient = async (e) => {
     e.preventDefault();
     setSaving(true);
     setNotification('');
 
     try {
+      if (!formData.name.trim() || !formData.ownerName.trim() || !formData.email.trim() || !formData.phone.trim()) {
+        alert('Name, Owner Name, Email, and Phone are required.');
+        setSaving(false);
+        return;
+      }
+
+      if (!editingClient && (!formData.password || !formData.password.trim())) {
+        alert('Please provide a login password for the new client.');
+        setSaving(false);
+        return;
+      }
+
+      const payload = {
+        name: formData.name.trim(),
+        ownerName: formData.ownerName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        plan: formData.plan,
+        status: formData.status,
+        address: formData.address.trim(),
+        notes: formData.notes.trim(),
+      };
+
+      if (!editingClient) {
+        payload.password = formData.password.trim();
+      } else if (formData.password && formData.password.trim().length > 0) {
+        payload.password = formData.password.trim();
+      }
+
       let res;
       if (editingClient) {
-        res = await api.updateClient(editingClient._id, formData);
+        res = await api.updateClient(editingClient._id, payload);
       } else {
-        res = await api.createClient(formData);
+        res = await api.createClient(payload);
       }
 
       if (res.success) {
@@ -738,22 +770,44 @@ export const SuperAdminPage = ({
                 <div className="sa-form-group">
                   <label className="sa-label">
                     <span>Login Password</span>
-                    <span className="sa-label-required">{editingClient ? '(Optional)' : '*'}</span>
+                    <span className="sa-label-required">{editingClient ? '(Optional - enter to change)' : '*'}</span>
                   </label>
-                  <div className="sa-input-box">
+                  <div className="sa-input-box" style={{ position: 'relative' }}>
                     <div className="sa-input-icon">
                       <Lock size={16} />
                     </div>
                     <input
-                      type="password"
+                      type={showClientPassword ? 'text' : 'password'}
                       className="sa-input"
                       required={!editingClient}
-                      placeholder={editingClient ? 'Leave blank to keep current' : 'Set client login password'}
+                      placeholder={editingClient ? 'Leave blank to keep existing' : 'Set client login password'}
                       value={formData.password}
                       onChange={(e) =>
                         setFormData({ ...formData, password: e.target.value })
                       }
+                      style={{ paddingRight: '40px' }}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowClientPassword(!showClientPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#94a3b8',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                      title={showClientPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showClientPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
                 </div>
               </div>
