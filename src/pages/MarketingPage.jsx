@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, Sparkles, MessageSquare, CheckCircle, AlertCircle, Tag, Users, Check, Gift, Crown, Calendar } from 'lucide-react';
+import { MessageSquare, CheckCircle, AlertCircle, Tag, Users, Check, Gift, Crown, Calendar, Copy, UserCheck } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -9,16 +9,35 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
 
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState('inactive_reengage');
-  const [targetGroup, setTargetGroup] = useState('inactive');
   const [selectedCustomer, setSelectedCustomer] = useState(preselectedCustomer || null);
+  const [customerList, setCustomerList] = useState([]);
+  const [copied, setCopied] = useState(false);
   const [offerCode, setOfferCode] = useState('MISSYOU15');
   const [discountPercent, setDiscountPercent] = useState(15);
   const [message, setMessage] = useState(
     'Hello {name}! It has been a while since your last visit. Treat yourself this week and enjoy 15% OFF with code {code}!'
   );
-  const [sending, setSending] = useState(false);
-  const [result, setResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    if (preselectedCustomer) {
+      setSelectedCustomer(preselectedCustomer);
+    }
+  }, [preselectedCustomer]);
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const res = await api.getCustomers();
+        if (res.success && Array.isArray(res.data)) {
+          setCustomerList(res.data);
+        }
+      } catch (err) {
+        console.error('Error loading customer list:', err);
+      }
+    };
+    fetchCustomers();
+  }, [activeClient]);
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -39,7 +58,12 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
     setMessage(tmpl.message);
     setOfferCode(tmpl.offerCode);
     setDiscountPercent(tmpl.discountPercent);
-    setTargetGroup(tmpl.target);
+  };
+
+  const handleCopyMessage = () => {
+    navigator.clipboard.writeText(personalizedMessage);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2200);
   };
 
   const handleInsertTag = (tag) => {
@@ -54,48 +78,13 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
 
   const handleOpenWhatsAppDirect = () => {
     if (!selectedCustomer || !selectedCustomer.phone) {
-      alert('Please select a customer to send WhatsApp message');
+      setErrorMessage('Pehle niche se ek customer select karein jise WhatsApp bhejna hai.');
       return;
     }
+    setErrorMessage('');
     const cleanPhone = '91' + selectedCustomer.phone.replace(/\D/g, '').slice(-10);
     const encodedText = encodeURIComponent(personalizedMessage);
     window.open(`https://wa.me/${cleanPhone}?text=${encodedText}`, '_blank');
-  };
-
-  const handleDispatch = async () => {
-    setSending(true);
-    setResult(null);
-    setErrorMessage('');
-
-    try {
-      const payload = {
-        targetGroup: selectedCustomer ? null : targetGroup,
-        customerIds: selectedCustomer ? [selectedCustomer._id] : [],
-        message,
-        offerCode,
-        discountPercent: Number(discountPercent),
-      };
-
-      const res = await api.sendOffer(payload);
-      if (res.success) {
-        setResult(res);
-        setErrorMessage('');
-        // If single customer, immediately launch WhatsApp chat with the prefilled message!
-        if (selectedCustomer && selectedCustomer.phone) {
-          const cleanPhone = '91' + selectedCustomer.phone.replace(/\D/g, '').slice(-10);
-          const encodedText = encodeURIComponent(personalizedMessage);
-          window.open(`https://wa.me/${cleanPhone}?text=${encodedText}`, '_blank');
-        }
-      } else {
-        setErrorMessage(res.message || 'Unable to send offer');
-        setResult(null);
-      }
-    } catch (err) {
-      setErrorMessage(err.message || 'Error sending offer');
-      setResult(null);
-    } finally {
-      setSending(false);
-    }
   };
 
   const category =
@@ -397,45 +386,102 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
             <span>Customize Campaign</span>
           </div>
 
-          {selectedCustomer ? (
-            <div style={{
-              padding: '12px 16px',
-              borderRadius: '10px',
-              background: 'rgba(245, 158, 11, 0.12)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
-              marginBottom: '18px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
-              <div>
-                <div style={{ fontSize: '0.75rem', color: '#f59e0b', textTransform: 'uppercase', fontWeight: 700 }}>Single Customer</div>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{selectedCustomer.name} (📞 +91 {selectedCustomer.phone})</div>
+          {/* 1. Direct Customer Selector */}
+          <div className="form-group" style={{ marginBottom: '18px' }}>
+            <label className="form-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>Select Customer to Send Offer *</span>
+              {selectedCustomer && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedCustomer(null)}
+                  style={{ background: 'transparent', border: 'none', color: '#f59e0b', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 700 }}
+                >
+                  Clear Selection
+                </button>
+              )}
+            </label>
+
+            {selectedCustomer ? (
+              <div style={{
+                padding: '12px 16px',
+                borderRadius: '12px',
+                background: 'linear-gradient(145deg, rgba(37, 211, 102, 0.12) 0%, rgba(16, 185, 129, 0.08) 100%)',
+                border: '1px solid rgba(37, 211, 102, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    background: '#25d366',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 800,
+                    fontSize: '1rem',
+                    flexShrink: 0
+                  }}>
+                    {(selectedCustomer.name || 'C').slice(0, 1).toUpperCase()}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: '0.96rem', color: '#f8fafc' }}>
+                      {selectedCustomer.name}
+                    </div>
+                    <div style={{ fontSize: '0.82rem', color: '#86efac', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>📞 +91 {selectedCustomer.phone}</span>
+                      <span>•</span>
+                      <span>{selectedCustomer.visitsCount || 1} {selectedCustomer.visitsCount === 1 ? 'Visit' : 'Visits'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ padding: '5px 12px', fontSize: '0.78rem' }}
+                  onClick={() => setSelectedCustomer(null)}
+                >
+                  Change
+                </button>
               </div>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                style={{ padding: '4px 10px', fontSize: '0.78rem' }}
-                onClick={() => setSelectedCustomer(null)}
-              >
-                Clear
-              </button>
-            </div>
-          ) : (
-            <div className="form-group" style={{ marginBottom: '16px' }}>
-              <label className="form-label">Send To Target Audience</label>
-              <select
-                className="form-select"
-                value={targetGroup}
-                onChange={(e) => setTargetGroup(e.target.value)}
-                style={{ padding: '12px 14px', fontSize: '0.95rem' }}
-              >
-                <option value="inactive">⚠️ Inactive Customers (Haven't visited in &gt; 20 days)</option>
-                <option value="vip">⭐️ VIP Regular Customers (5+ visits)</option>
-                <option value="all">👥 All Registered Customers</option>
-              </select>
-            </div>
-          )}
+            ) : (
+              <div>
+                <select
+                  className="form-select"
+                  value={selectedCustomer?._id || ''}
+                  onChange={(e) => {
+                    const found = customerList.find(c => c._id === e.target.value);
+                    if (found) {
+                      setSelectedCustomer(found);
+                      setErrorMessage('');
+                    }
+                  }}
+                  style={{ padding: '12px 14px', fontSize: '0.95rem' }}
+                >
+                  <option value="">-- Choose Customer from list ({customerList.length} registered) --</option>
+                  {customerList.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.name} — 📞 +91 {c.phone} ({c.visitsCount || 1} visits)
+                    </option>
+                  ))}
+                </select>
+
+                {customerList.length === 0 ? (
+                  <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '6px' }}>
+                    Tip: Is store me abhi koi customer nahi hai. Scan Bill page se pehle bill scan karein.
+                  </div>
+                ) : (
+                  <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '6px' }}>
+                    Aap Customers page par kisi customer ke aage "Send Offer" dabakar bhi direct yahan aa sakte hain.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Promo Code & Discount % in a Balanced Row */}
           <div style={{ display: 'flex', gap: '14px', marginBottom: '16px' }}>
@@ -507,41 +553,52 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
             />
           </div>
 
-          {/* Dispatch Buttons */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
-            {selectedCustomer ? (
-              <button
-                type="button"
-                className="btn btn-primary"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  fontSize: '1rem',
-                  background: '#25d366',
-                  borderColor: '#22c55e',
-                  color: '#ffffff',
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
-                onClick={handleOpenWhatsAppDirect}
-              >
-                <MessageSquare size={19} />
-                <span>Open in WhatsApp & Send to {selectedCustomer.name}</span>
-              </button>
-            ) : null}
+          {/* Dispatch Direct WhatsApp Action Buttons */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{
+                width: '100%',
+                padding: '14px',
+                fontSize: '1rem',
+                background: selectedCustomer ? '#25d366' : 'rgba(37, 211, 102, 0.35)',
+                borderColor: selectedCustomer ? '#22c55e' : 'rgba(37, 211, 102, 0.2)',
+                color: '#ffffff',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                cursor: selectedCustomer ? 'pointer' : 'not-allowed',
+                boxShadow: selectedCustomer ? '0 6px 20px rgba(37, 211, 102, 0.35)' : 'none',
+                transition: 'all 0.2s ease',
+              }}
+              onClick={handleOpenWhatsAppDirect}
+              disabled={!selectedCustomer}
+            >
+              <MessageSquare size={19} />
+              <span>
+                {selectedCustomer
+                  ? `Open in WhatsApp & Send to ${selectedCustomer.name}`
+                  : 'Select a Customer Above to Send on WhatsApp'}
+              </span>
+            </button>
 
             <button
               type="button"
-              className={selectedCustomer ? "btn btn-secondary" : "btn btn-primary"}
-              style={{ width: '100%', padding: '13px', fontSize: '0.96rem' }}
-              onClick={handleDispatch}
-              disabled={sending}
+              className="btn btn-secondary"
+              onClick={handleCopyMessage}
+              style={{
+                width: '100%',
+                padding: '11px',
+                fontSize: '0.88rem',
+                justifyContent: 'center',
+                gap: '8px',
+              }}
             >
-              <Send size={17} />
-              <span>{sending ? 'Dispatching Campaign...' : (selectedCustomer ? 'Record Campaign & Open WhatsApp' : 'Dispatch WhatsApp Campaign (Bulk)')}</span>
+              <Copy size={16} />
+              <span>{copied ? '✓ Message Copied to Clipboard!' : 'Copy Offer Message Text'}</span>
             </button>
           </div>
         </div>
