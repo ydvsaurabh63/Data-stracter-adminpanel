@@ -486,12 +486,6 @@ export const SuperAdminPage = ({
       ) : (
         <div className="super-admin-clients-grid">
           {filteredClients.map((client) => {
-            const cleanPhone = client.phone ? client.phone.replace(/\D/g, '') : '';
-            const whatsappUrl =
-              cleanPhone.length === 10
-                ? `https://wa.me/91${cleanPhone}`
-                : `https://wa.me/${cleanPhone}`;
-
             const initials = client.name
               ? client.name
                   .trim()
@@ -546,18 +540,6 @@ export const SuperAdminPage = ({
                   <div className="client-meta-item">
                     <Phone size={13} color="#f59e0b" />
                     <span>{client.phone}</span>
-                    {cleanPhone && (
-                      <a
-                        href={whatsappUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="client-whatsapp-btn"
-                        title="Chat on WhatsApp"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        💬 WhatsApp
-                      </a>
-                    )}
                   </div>
                   <div className="client-meta-item">
                     <Mail size={13} color="#3b82f6" />
