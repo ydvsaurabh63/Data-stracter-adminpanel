@@ -2020,6 +2020,8 @@ body {
   flex-direction: column;
   gap: 2px;
   transition: transform 0.2s;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .metric-box.bills {
@@ -2038,9 +2040,12 @@ body {
 }
 
 .metric-box .metric-num {
-  font-size: 0.98rem;
+  font-size: clamp(0.82rem, 2.5vw, 0.98rem);
   font-weight: 850;
   color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .metric-box.bills .metric-num {
@@ -2429,10 +2434,11 @@ body {
   }
 
   .super-admin-header-actions button:not(.super-admin-create-btn) {
-    flex: 1 1 45%;
+    flex: 1 1 calc(33.333% - 6px);
+    min-width: 75px;
     justify-content: center;
-    padding: 9px 12px !important;
-    font-size: 0.84rem !important;
+    padding: 10px 8px !important;
+    font-size: 0.82rem !important;
   }
 
   /* KPI Grid: Clean 2x2 grid on mobile phones */
@@ -2579,15 +2585,23 @@ body {
   }
 }
 
+/* Small Phones (< 440px) */
+@media (max-width: 440px) {
+  .super-admin-header-actions button:not(.super-admin-create-btn) {
+    padding: 8px 4px !important;
+    font-size: 0.74rem !important;
+    gap: 4px !important;
+    min-width: 0 !important;
+  }
+  .super-admin-header-actions button:not(.super-admin-create-btn) span {
+    font-size: 0.74rem !important;
+  }
+}
+
 /* Extra Small Phones (< 380px) */
 @media (max-width: 380px) {
-  .super-admin-kpi-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
   .super-admin-header .super-admin-main-heading {
-    font-size: 1.5rem !important;
+    font-size: 1.4rem !important;
   }
 
   .client-actions-bar {

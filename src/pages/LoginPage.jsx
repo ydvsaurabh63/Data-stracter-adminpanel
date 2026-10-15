@@ -46,18 +46,21 @@ export const LoginPage = ({ onLogin }) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '20px',
+      padding: 'clamp(14px, 4vw, 24px)',
       backgroundColor: '#0a0e17',
+      width: '100%',
+      boxSizing: 'border-box',
     }}>
       <div style={{
         maxWidth: '430px',
         width: '100%',
-        padding: '36px 30px',
+        padding: 'clamp(26px, 6vw, 36px) clamp(16px, 5vw, 30px)',
         background: 'rgba(15, 23, 42, 0.75)',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         borderRadius: '20px',
         backdropFilter: 'blur(16px)',
         boxShadow: '0 20px 45px rgba(0, 0, 0, 0.5)',
+        boxSizing: 'border-box',
       }}>
         {/* Crown Icon with Golden/Amber Glow */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
