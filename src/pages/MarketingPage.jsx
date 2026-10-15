@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Send, Sparkles, MessageSquare, CheckCircle, Tag, Users, Check, Gift, Crown, Calendar } from 'lucide-react';
 import { api } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
-export const MarketingPage = ({ preselectedCustomer }) => {
+export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
+  const { admin } = useAuth();
+  const restaurantName = activeClient?.name || admin?.restaurantName || 'Restaurant';
+
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState('inactive_reengage');
   const [targetGroup, setTargetGroup] = useState('inactive');
@@ -43,8 +47,9 @@ export const MarketingPage = ({ preselectedCustomer }) => {
 
   const targetName = selectedCustomer ? selectedCustomer.name : 'Valued Guest';
   const personalizedMessage = message
-    .replace('{name}', targetName)
-    .replace('{code}', offerCode);
+    .replace(/{name}/g, targetName)
+    .replace(/{code}/g, offerCode)
+    .replace(/{restaurant}/g, restaurantName);
 
   const handleOpenWhatsAppDirect = () => {
     if (!selectedCustomer || !selectedCustomer.phone) {
@@ -264,6 +269,14 @@ export const MarketingPage = ({ preselectedCustomer }) => {
                 >
                   + {'{code}'}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => handleInsertTag('{restaurant}')}
+                  className="btn btn-secondary"
+                  style={{ padding: '2px 8px', fontSize: '0.72rem' }}
+                >
+                  + {'{restaurant}'}
+                </button>
               </div>
             </div>
 
@@ -341,7 +354,7 @@ export const MarketingPage = ({ preselectedCustomer }) => {
                 🍽️
               </div>
               <div>
-                <div className="phone-title">Grand Spice Restaurant</div>
+                <div className="phone-title">{restaurantName}</div>
                 <div className="phone-status">WhatsApp Business • Online</div>
               </div>
             </div>
@@ -357,9 +370,7 @@ export const MarketingPage = ({ preselectedCustomer }) => {
               {/* Chat Bubble */}
               <div className="chat-bubble">
                 <div style={{ wordBreak: 'break-word' }}>
-                  {message
-                    .replace('{name}', selectedCustomer ? selectedCustomer.name : 'Rahul Sharma')
-                    .replace('{code}', offerCode)}
+                  {personalizedMessage}
                 </div>
 
                 <div className="chat-action-btn">

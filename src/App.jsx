@@ -194,6 +194,7 @@ function AppContent() {
           <main className="main-content">
             {currentTab === 'scan' && (
               <ScanBillPage
+                activeClient={activeClient}
                 onBillSaved={(result) => {
                   // Instant bill callback
                 }}
@@ -209,7 +210,10 @@ function AppContent() {
             )}
 
             {currentTab === 'marketing' && (
-              <MarketingPage preselectedCustomer={targetCustomerForOffer} />
+              <MarketingPage
+                preselectedCustomer={targetCustomerForOffer}
+                activeClient={activeClient}
+              />
             )}
           </main>
         </div>

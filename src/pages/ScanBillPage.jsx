@@ -16,8 +16,11 @@ import {
 } from 'lucide-react';
 import { api } from '../services/api';
 import { BillReviewModal } from '../components/BillReviewModal';
+import { useAuth } from '../context/AuthContext';
 
-export const ScanBillPage = ({ onBillSaved }) => {
+export const ScanBillPage = ({ onBillSaved, activeClient }) => {
+  const { admin } = useAuth();
+  const currentRestaurantName = (activeClient?.name || admin?.restaurantName || 'RESTAURANT').toUpperCase();
   const videoRef = useRef(null);
   const fileInputRef = useRef(null);
   const streamRef = useRef(null);
@@ -158,7 +161,7 @@ export const ScanBillPage = ({ onBillSaved }) => {
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 26px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('GRAND SPICE BISTRO', 300, 60);
+    ctx.fillText(currentRestaurantName, 300, 60);
 
     ctx.font = '14px sans-serif';
     ctx.fillStyle = '#64748b';
