@@ -13,10 +13,10 @@ export const AuthProvider = ({ children }) => {
     }
   });
   const [token, setToken] = useState(localStorage.getItem('restaurant_token') || null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const initAuth = async () => {
+    const verifyAuthInBackground = async () => {
       if (token) {
         try {
           const res = await api.getMe();
@@ -27,18 +27,17 @@ export const AuthProvider = ({ children }) => {
             if (targetClientId) {
               localStorage.setItem('active_client_id', targetClientId);
             }
-          } else if (!res.success) {
+          } else if (res.status === 401 || (res.message && res.message.toLowerCase().includes('token'))) {
             logout();
           }
         } catch (err) {
-          console.error('Auth verification error:', err);
-          logout();
+          // Do not kick out user on temporary network delays or cold starts
+          console.warn('Background auth sync note:', err.message);
         }
       }
-      setLoading(false);
     };
 
-    initAuth();
+    verifyAuthInBackground();
   }, [token]);
 
   const login = (adminData, authToken) => {

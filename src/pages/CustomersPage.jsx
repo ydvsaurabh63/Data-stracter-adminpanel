@@ -4,20 +4,33 @@ import { api } from '../services/api';
 import { CustomerDetailsModal } from '../components/CustomerDetailsModal';
 
 export const CustomersPage = ({ onSendOfferToCustomer }) => {
-  const [customers, setCustomers] = useState([]);
-  const [total, setTotal] = useState(0);
+  const activeClientId = localStorage.getItem('active_client_id') || 'default';
+  const [customers, setCustomers] = useState(() => {
+    try {
+      const cached = localStorage.getItem(`cached_customers_${activeClientId}`);
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [total, setTotal] = useState(() => customers.length);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => customers.length === 0);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
 
   const fetchCustomers = async () => {
-    setLoading(true);
+    if (customers.length === 0) setLoading(true);
     try {
       const res = await api.getCustomers({ search, filter });
       if (res.success) {
         setCustomers(res.data);
         setTotal(res.total);
+        if (!search && filter === 'all') {
+          try {
+            localStorage.setItem(`cached_customers_${activeClientId}`, JSON.stringify(res.data));
+          } catch (e) {}
+        }
       }
     } catch (err) {
       console.error('Error fetching customers:', err);

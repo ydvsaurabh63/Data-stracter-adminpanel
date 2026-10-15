@@ -23,8 +23,16 @@ import { api } from '../services/api';
 import { CustomerDetailsModal } from '../components/CustomerDetailsModal';
 
 export const DashboardPage = ({ onNavigate }) => {
-  const [analytics, setAnalytics] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const activeClientId = localStorage.getItem('active_client_id') || 'default';
+  const [analytics, setAnalytics] = useState(() => {
+    try {
+      const cached = localStorage.getItem(`cached_analytics_${activeClientId}`);
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState(!analytics);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'vip' | 'regular' | 'new'
@@ -33,8 +41,9 @@ export const DashboardPage = ({ onNavigate }) => {
     const fetchStats = async () => {
       try {
         const res = await api.getAnalytics();
-        if (res.success) {
+        if (res.success && res.data) {
           setAnalytics(res.data);
+          localStorage.setItem(`cached_analytics_${activeClientId}`, JSON.stringify(res.data));
         }
       } catch (err) {
         console.error('Error fetching analytics:', err);
@@ -43,7 +52,7 @@ export const DashboardPage = ({ onNavigate }) => {
       }
     };
     fetchStats();
-  }, []);
+  }, [activeClientId]);
 
   const {
     totalCustomers = 0,

@@ -16,8 +16,22 @@ function AppContent() {
   ); // 'superadmin' | 'client'
   const [currentTab, setCurrentTab] = useState('scan');
   const [targetCustomerForOffer, setTargetCustomerForOffer] = useState(null);
-  const [clients, setClients] = useState([]);
-  const [activeClient, setActiveClient] = useState(null);
+  const [clients, setClients] = useState(() => {
+    try {
+      const stored = localStorage.getItem('cached_superadmin_clients');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [activeClient, setActiveClient] = useState(() => {
+    try {
+      const stored = localStorage.getItem('active_client_data');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Fetch Clients List
@@ -26,6 +40,9 @@ function AppContent() {
       const res = await api.getClients();
       if (res.success && res.data?.length > 0) {
         setClients(res.data);
+        try {
+          localStorage.setItem('cached_superadmin_clients', JSON.stringify(res.data));
+        } catch (e) {}
         const storedId = localStorage.getItem('active_client_id');
         const targetId = preferredClientId || storedId;
 
@@ -53,6 +70,7 @@ function AppContent() {
         setActiveClient(found);
         if (found) {
           localStorage.setItem('active_client_id', found._id);
+          localStorage.setItem('active_client_data', JSON.stringify(found));
         }
       }
     } catch (err) {
@@ -154,6 +172,7 @@ function AppContent() {
   const handleSelectClient = (client) => {
     setActiveClient(client);
     localStorage.setItem('active_client_id', client._id);
+    localStorage.setItem('active_client_data', JSON.stringify(client));
     setViewMode('client');
     localStorage.setItem('app_view_mode', 'client');
     setCurrentTab('dashboard'); // start on client's overview dashboard

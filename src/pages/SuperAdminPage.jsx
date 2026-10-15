@@ -38,9 +38,30 @@ export const SuperAdminPage = ({
   setIsCreateModalOpen,
 }) => {
   const { admin, updateUser, logout } = useAuth();
-  const [clients, setClients] = useState([]);
-  const [overview, setOverview] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [clients, setClients] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cached_superadmin_clients');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [overview, setOverview] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cached_superadmin_overview');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cached_superadmin_clients');
+      return !cached || JSON.parse(cached).length === 0;
+    } catch {
+      return true;
+    }
+  });
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [editingClient, setEditingClient] = useState(null);
@@ -142,18 +163,30 @@ export const SuperAdminPage = ({
   };
 
   const fetchDashboardData = async () => {
-    setLoading(true);
+    if (clients.length === 0) {
+      setLoading(true);
+    }
     try {
       const [clientsRes, overviewRes] = await Promise.all([
         api.getClients(),
         api.getPlatformOverview(),
       ]);
 
-      if (clientsRes.success) {
-        setClients(clientsRes.data || []);
+      if (clientsRes.success && Array.isArray(clientsRes.data)) {
+        setClients(clientsRes.data);
+        try {
+          localStorage.setItem('cached_superadmin_clients', JSON.stringify(clientsRes.data));
+        } catch (e) {
+          console.warn('Error caching clients:', e);
+        }
       }
-      if (overviewRes.success) {
+      if (overviewRes.success && overviewRes.data) {
         setOverview(overviewRes.data);
+        try {
+          localStorage.setItem('cached_superadmin_overview', JSON.stringify(overviewRes.data));
+        } catch (e) {
+          console.warn('Error caching overview:', e);
+        }
       }
     } catch (err) {
       console.error('Error fetching admin data:', err);
