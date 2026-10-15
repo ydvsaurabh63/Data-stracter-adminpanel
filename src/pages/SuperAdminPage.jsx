@@ -67,7 +67,7 @@ export const SuperAdminPage = ({
     email: '',
     phone: '',
     password: '',
-    category: 'Restaurant',
+    category: '',
     plan: 'Pro',
     status: 'active',
     address: '',
@@ -174,7 +174,7 @@ export const SuperAdminPage = ({
       email: '',
       phone: '',
       password: '',
-      category: 'Restaurant',
+      category: '',
       plan: 'Pro',
       status: 'active',
       address: '',
@@ -191,7 +191,7 @@ export const SuperAdminPage = ({
       email: client.email || '',
       phone: client.phone || '',
       password: '',
-      category: client.category || 'Restaurant',
+      category: client.category || '',
       plan: client.plan || 'Pro',
       status: client.status || 'active',
       address: client.address || '',
@@ -214,6 +214,12 @@ export const SuperAdminPage = ({
         return;
       }
 
+      if (!formData.category) {
+        alert('Please select a Business Category for this client.');
+        setSaving(false);
+        return;
+      }
+
       if (!editingClient && (!formData.password || !formData.password.trim())) {
         alert('Please provide a login password for the new client.');
         setSaving(false);
@@ -225,7 +231,7 @@ export const SuperAdminPage = ({
         ownerName: formData.ownerName.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
-        category: formData.category || 'Restaurant',
+        category: formData.category,
         plan: formData.plan,
         status: formData.status,
         address: formData.address.trim(),
@@ -706,12 +712,18 @@ export const SuperAdminPage = ({
                   <div className="sa-input-box">
                     <select
                       className="sa-input"
-                      value={formData.category || 'Restaurant'}
+                      required
+                      value={formData.category}
                       onChange={(e) =>
                         setFormData({ ...formData, category: e.target.value })
                       }
-                      style={{ background: '#0f172a', color: '#f8fafc', cursor: 'pointer' }}
+                      style={{
+                        background: '#0f172a',
+                        color: formData.category ? '#f8fafc' : '#94a3b8',
+                        cursor: 'pointer',
+                      }}
                     >
+                      <option value="" disabled>-- Select Business Category --</option>
                       <option value="Restaurant">🍽️ Restaurant</option>
                       <option value="Cafe">☕ Cafe</option>
                       <option value="Garments & Fashion">👕 Garments & Fashion</option>
