@@ -298,23 +298,8 @@ export const SuperAdminPage = ({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <h1 className="super-admin-main-heading">
-                Master Admin
+                Admin
               </h1>
-              <span
-                style={{
-                  fontSize: '0.68rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  padding: '3px 9px',
-                  borderRadius: '9999px',
-                  background: 'rgba(245, 158, 11, 0.15)',
-                  border: '1px solid rgba(245, 158, 11, 0.35)',
-                  color: '#fbbf24',
-                }}
-              >
-                PLATFORM OVERVIEW
-              </span>
             </div>
             <p className="super-admin-subheading">
               Manage all client workspaces, live cross-platform revenue, and counter configurations.
