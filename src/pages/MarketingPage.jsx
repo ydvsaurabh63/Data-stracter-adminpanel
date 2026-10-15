@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, Sparkles, MessageSquare, CheckCircle, Tag, Users, Check, Gift, Crown, Calendar } from 'lucide-react';
+import { Send, Sparkles, MessageSquare, CheckCircle, AlertCircle, Tag, Users, Check, Gift, Crown, Calendar } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -18,6 +18,7 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
   );
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -64,6 +65,7 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
   const handleDispatch = async () => {
     setSending(true);
     setResult(null);
+    setErrorMessage('');
 
     try {
       const payload = {
@@ -75,16 +77,22 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
       };
 
       const res = await api.sendOffer(payload);
-      setResult(res);
-
-      // If single customer, immediately launch WhatsApp chat with the prefilled message!
-      if (selectedCustomer && selectedCustomer.phone) {
-        const cleanPhone = '91' + selectedCustomer.phone.replace(/\D/g, '').slice(-10);
-        const encodedText = encodeURIComponent(personalizedMessage);
-        window.open(`https://wa.me/${cleanPhone}?text=${encodedText}`, '_blank');
+      if (res.success) {
+        setResult(res);
+        setErrorMessage('');
+        // If single customer, immediately launch WhatsApp chat with the prefilled message!
+        if (selectedCustomer && selectedCustomer.phone) {
+          const cleanPhone = '91' + selectedCustomer.phone.replace(/\D/g, '').slice(-10);
+          const encodedText = encodeURIComponent(personalizedMessage);
+          window.open(`https://wa.me/${cleanPhone}?text=${encodedText}`, '_blank');
+        }
+      } else {
+        setErrorMessage(res.message || 'Unable to send offer');
+        setResult(null);
       }
     } catch (err) {
-      alert('Error sending offer: ' + err.message);
+      setErrorMessage(err.message || 'Error sending offer');
+      setResult(null);
     } finally {
       setSending(false);
     }
@@ -329,6 +337,25 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
         }}>
           <CheckCircle size={20} color="#10b981" />
           <span>{result.message}</span>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div style={{
+          padding: '12px 18px',
+          background: 'rgba(245, 158, 11, 0.15)',
+          border: '1px solid rgba(245, 158, 11, 0.4)',
+          borderRadius: '12px',
+          color: '#fcd34d',
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          fontSize: '0.92rem',
+          fontWeight: 600,
+        }}>
+          <AlertCircle size={20} color="#f59e0b" />
+          <span>{errorMessage}</span>
         </div>
       )}
 
