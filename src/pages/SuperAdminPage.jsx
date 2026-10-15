@@ -64,6 +64,7 @@ export const SuperAdminPage = ({
     ownerName: '',
     email: '',
     phone: '',
+    password: '',
     plan: 'Pro',
     status: 'active',
     address: '',
@@ -169,6 +170,7 @@ export const SuperAdminPage = ({
       ownerName: '',
       email: '',
       phone: '',
+      password: '',
       plan: 'Pro',
       status: 'active',
       address: '',
@@ -184,6 +186,7 @@ export const SuperAdminPage = ({
       ownerName: client.ownerName || '',
       email: client.email || '',
       phone: client.phone || '',
+      password: '',
       plan: client.plan || 'Pro',
       status: client.status || 'active',
       address: client.address || '',
@@ -709,25 +712,49 @@ export const SuperAdminPage = ({
                 </div>
               </div>
 
-              <div className="sa-form-group">
-                <label className="sa-label">
-                  <span>Email Address</span>
-                  <span className="sa-label-required">*</span>
-                </label>
-                <div className="sa-input-box">
-                  <div className="sa-input-icon">
-                    <Mail size={16} />
+              <div className="form-grid-2">
+                <div className="sa-form-group">
+                  <label className="sa-label">
+                    <span>Email Address (Login Username)</span>
+                    <span className="sa-label-required">*</span>
+                  </label>
+                  <div className="sa-input-box">
+                    <div className="sa-input-icon">
+                      <Mail size={16} />
+                    </div>
+                    <input
+                      type="email"
+                      className="sa-input"
+                      required
+                      placeholder="e.g. contact@client.com"
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                    />
                   </div>
-                  <input
-                    type="email"
-                    className="sa-input"
-                    required
-                    placeholder="e.g. contact@client.com"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                  />
+                </div>
+
+                <div className="sa-form-group">
+                  <label className="sa-label">
+                    <span>Login Password</span>
+                    <span className="sa-label-required">{editingClient ? '(Optional)' : '*'}</span>
+                  </label>
+                  <div className="sa-input-box">
+                    <div className="sa-input-icon">
+                      <Lock size={16} />
+                    </div>
+                    <input
+                      type="password"
+                      className="sa-input"
+                      required={!editingClient}
+                      placeholder={editingClient ? 'Leave blank to keep current' : 'Set client login password'}
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                    />
+                  </div>
                 </div>
               </div>
 
