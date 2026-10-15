@@ -24,6 +24,8 @@ import {
   User,
   FileText,
   Store,
+  Lock,
+  Key,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -33,7 +35,7 @@ export const SuperAdminPage = ({
   isCreateModalOpen,
   setIsCreateModalOpen,
 }) => {
-  const { logout } = useAuth();
+  const { admin, updateUser, logout } = useAuth();
   const [clients, setClients] = useState([]);
   const [overview, setOverview] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,6 +44,19 @@ export const SuperAdminPage = ({
   const [editingClient, setEditingClient] = useState(null);
   const [saving, setSaving] = useState(false);
   const [notification, setNotification] = useState('');
+
+  // Profile Modal State
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileError, setProfileError] = useState('');
+  const [profileSuccess, setProfileSuccess] = useState('');
+  const [profileForm, setProfileForm] = useState({
+    username: '',
+    email: '',
+    restaurantName: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
 
   // Form State for New / Edit Client
   const [formData, setFormData] = useState({
@@ -54,6 +69,73 @@ export const SuperAdminPage = ({
     address: '',
     notes: '',
   });
+
+  const handleOpenProfileModal = () => {
+    setProfileForm({
+      username: admin?.username || '',
+      email: admin?.email || '',
+      restaurantName: admin?.restaurantName || 'Master Super Admin',
+      newPassword: '',
+      confirmPassword: '',
+    });
+    setProfileError('');
+    setProfileSuccess('');
+    setIsProfileModalOpen(true);
+  };
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    setProfileError('');
+    setProfileSuccess('');
+
+    if (!profileForm.username.trim() || !profileForm.email.trim()) {
+      setProfileError('Username and Email are required.');
+      return;
+    }
+
+    if (profileForm.newPassword) {
+      if (profileForm.newPassword.length < 4) {
+        setProfileError('Password must be at least 4 characters long.');
+        return;
+      }
+      if (profileForm.newPassword !== profileForm.confirmPassword) {
+        setProfileError('Passwords do not match.');
+        return;
+      }
+    }
+
+    setProfileSaving(true);
+    try {
+      const payload = {
+        username: profileForm.username.trim(),
+        email: profileForm.email.trim(),
+        restaurantName: profileForm.restaurantName.trim(),
+      };
+      if (profileForm.newPassword) {
+        payload.password = profileForm.newPassword.trim();
+      }
+
+      const res = await api.updateProfile(payload);
+      if (res.success) {
+        if (updateUser) {
+          updateUser(res.data, res.data.token);
+        }
+        setProfileSuccess('Profile updated successfully!');
+        setNotification('Admin Profile Updated!');
+        setTimeout(() => {
+          setIsProfileModalOpen(false);
+          setProfileSuccess('');
+          setProfileError('');
+        }, 1200);
+      } else {
+        setProfileError(res.message || 'Failed to update profile.');
+      }
+    } catch (err) {
+      setProfileError('Error connecting to server. Please try again.');
+    } finally {
+      setProfileSaving(false);
+    }
+  };
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -259,6 +341,26 @@ export const SuperAdminPage = ({
           >
             <Plus size={18} />
             <span>Add Client</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleOpenProfileModal}
+            title="Admin Profile Settings"
+            style={{
+              borderRadius: '10px',
+              padding: '10px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '7px',
+              borderColor: 'rgba(245, 158, 11, 0.4)',
+              background: 'rgba(245, 158, 11, 0.1)',
+              color: '#fbbf24',
+            }}
+          >
+            <User size={15} />
+            <span>Profile</span>
           </button>
 
           <button
@@ -840,6 +942,260 @@ export const SuperAdminPage = ({
                     <>
                       <Sparkles size={16} />
                       <span>Create Client</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ADMIN PROFILE MODAL */}
+      {isProfileModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsProfileModalOpen(false)}>
+          <div
+            className="super-admin-modal"
+            style={{ maxWidth: '540px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="super-admin-modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div
+                  className="super-admin-modal-icon"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.15))',
+                    borderColor: 'rgba(245, 158, 11, 0.4)',
+                    color: '#fbbf24',
+                  }}
+                >
+                  <User size={22} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
+                      Admin Profile Settings
+                    </h2>
+                    <span
+                      style={{
+                        fontSize: '0.65rem',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        padding: '2px 8px',
+                        borderRadius: '9999px',
+                        background: 'rgba(245, 158, 11, 0.18)',
+                        color: '#fbbf24',
+                        border: '1px solid rgba(245, 158, 11, 0.35)',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
+                      SUPER ADMIN
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: '3px 0 0' }}>
+                    Update your account username, login email, and password.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="super-admin-modal-close"
+                onClick={() => setIsProfileModalOpen(false)}
+                title="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {profileError && (
+              <div style={{
+                margin: '16px 24px 0',
+                padding: '10px 14px',
+                background: 'rgba(239, 68, 68, 0.15)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '8px',
+                color: '#fca5a5',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '0.85rem',
+              }}>
+                <AlertCircle size={16} />
+                <span>{profileError}</span>
+              </div>
+            )}
+
+            {profileSuccess && (
+              <div style={{
+                margin: '16px 24px 0',
+                padding: '10px 14px',
+                background: 'rgba(16, 185, 129, 0.15)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '8px',
+                color: '#6ee7b7',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '0.85rem',
+              }}>
+                <CheckCircle size={16} />
+                <span>{profileSuccess}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveProfile} className="super-admin-form">
+              {/* SECTION: BASIC INFO */}
+              <div className="sa-form-section-title">
+                <User size={13} />
+                <span>Account Credentials</span>
+              </div>
+
+              <div className="form-grid-2">
+                <div className="sa-form-group">
+                  <label className="sa-label">
+                    <span>Username</span>
+                    <span className="sa-label-required">*</span>
+                  </label>
+                  <div className="sa-input-box">
+                    <div className="sa-input-icon">
+                      <User size={16} />
+                    </div>
+                    <input
+                      type="text"
+                      className="sa-input"
+                      required
+                      placeholder="e.g. admin"
+                      value={profileForm.username}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, username: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="sa-form-group">
+                  <label className="sa-label">
+                    <span>Email Address</span>
+                    <span className="sa-label-required">*</span>
+                  </label>
+                  <div className="sa-input-box">
+                    <div className="sa-input-icon">
+                      <Mail size={16} />
+                    </div>
+                    <input
+                      type="email"
+                      className="sa-input"
+                      required
+                      placeholder="admin@restaurant.com"
+                      value={profileForm.email}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, email: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="sa-form-group">
+                <label className="sa-label">
+                  <span>Portal Display Name</span>
+                </label>
+                <div className="sa-input-box">
+                  <div className="sa-input-icon">
+                    <Crown size={16} />
+                  </div>
+                  <input
+                    type="text"
+                    className="sa-input"
+                    placeholder="Master Super Admin"
+                    value={profileForm.restaurantName}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, restaurantName: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* SECTION: PASSWORD CHANGE */}
+              <div className="sa-form-section-title" style={{ marginTop: '16px' }}>
+                <Key size={13} />
+                <span>Change Password (Leave blank to keep current)</span>
+              </div>
+
+              <div className="form-grid-2">
+                <div className="sa-form-group">
+                  <label className="sa-label">
+                    <span>New Password</span>
+                  </label>
+                  <div className="sa-input-box">
+                    <div className="sa-input-icon">
+                      <Lock size={16} />
+                    </div>
+                    <input
+                      type="password"
+                      className="sa-input"
+                      placeholder="New password (min 4 chars)"
+                      value={profileForm.newPassword}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, newPassword: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="sa-form-group">
+                  <label className="sa-label">
+                    <span>Confirm New Password</span>
+                  </label>
+                  <div className="sa-input-box">
+                    <div className="sa-input-icon">
+                      <Lock size={16} />
+                    </div>
+                    <input
+                      type="password"
+                      className="sa-input"
+                      placeholder="Confirm new password"
+                      value={profileForm.confirmPassword}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, confirmPassword: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* MODAL ACTIONS */}
+              <div className="sa-actions" style={{ marginTop: '24px' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setIsProfileModalOpen(false)}
+                  disabled={profileSaving}
+                  style={{ padding: '10px 20px', borderRadius: '10px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={profileSaving}
+                  style={{
+                    minWidth: '160px',
+                    padding: '10px 22px',
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  {profileSaving ? (
+                    'Saving...'
+                  ) : (
+                    <>
+                      <Sparkles size={16} />
+                      <span>Save Profile</span>
                     </>
                   )}
                 </button>

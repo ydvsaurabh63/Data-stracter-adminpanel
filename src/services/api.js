@@ -35,6 +35,15 @@ export const api = {
     return await res.json();
   },
 
+  async updateProfile(profileData) {
+    const res = await fetch(`${API_BASE_URL}/auth/profile`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(profileData),
+    });
+    return await res.json();
+  },
+
   // Bills
   async extractBill(formData) {
     const res = await fetch(`${API_BASE_URL}/bills/extract`, {
