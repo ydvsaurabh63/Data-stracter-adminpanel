@@ -51,7 +51,6 @@ export const Sidebar = ({ currentTab, setCurrentTab, activeClient, onGoToSuperAd
             </div>
             <div>
               <div className="brand-name">{clientName}</div>
-              <div className="brand-subtitle">{activeClient?.plan ? `${activeClient.plan} Plan` : 'Client Portal'}</div>
             </div>
           </div>
 
