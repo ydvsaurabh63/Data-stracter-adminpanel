@@ -90,32 +90,219 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
     }
   };
 
-  const defaultTemplates = templates.length > 0 ? templates : [
-    {
-      id: 'inactive_reengage',
-      title: 'We Miss You!',
-      target: 'inactive',
-      discountPercent: 15,
-      offerCode: 'MISSYOU15',
-      message: 'Hello {name}! It has been a while since your last visit. Treat yourself this week and enjoy 15% OFF with code {code}!',
-    },
-    {
-      id: 'vip_appreciation',
-      title: 'VIP Loyalty Reward',
-      target: 'vip',
-      discountPercent: 20,
-      offerCode: 'VIPDESSERT',
-      message: 'Dear {name}, thank you for dining with us! Enjoy a complimentary Chef Special Dessert with code {code} on your next visit.',
-    },
-    {
-      id: 'weekend_special',
-      title: 'Weekend Special',
-      target: 'all',
-      discountPercent: 10,
-      offerCode: 'WEEKEND10',
-      message: 'Hello {name}! Dine with us this weekend and enjoy 10% OFF on your table with code {code}!',
-    },
-  ];
+  const category = activeClient?.category || admin?.category || 'Restaurant';
+
+  const getCategoryEmoji = (cat) => {
+    switch (cat) {
+      case 'Cafe': return '☕';
+      case 'Garments & Fashion': return '👕';
+      case 'Hardware & Sanitary': return '🔧';
+      case 'Electronics & Mobile': return '📱';
+      case 'Grocery & Supermarket': return '🛒';
+      case 'General Retail Store': return '🏪';
+      case 'Restaurant':
+      default: return '🍽️';
+    }
+  };
+
+  const categoryEmoji = getCategoryEmoji(category);
+
+  const getCategoryTemplates = (cat) => {
+    switch (cat) {
+      case 'Garments & Fashion':
+        return [
+          {
+            id: 'garments_trend',
+            title: 'New Season Trend',
+            target: 'all',
+            discountPercent: 20,
+            offerCode: 'TREND20',
+            message: 'Hello {name}! New Season Trend Collection has arrived at {restaurant}! Enjoy flat 20% OFF on your next shopping with code {code}!',
+          },
+          {
+            id: 'garments_vip',
+            title: 'VIP Style Privilege',
+            target: 'vip',
+            discountPercent: 25,
+            offerCode: 'VIPSTYLE25',
+            message: 'Dear {name}, thank you for choosing {restaurant}! Enjoy exclusive 25% OFF on premium apparel with code {code}!',
+          },
+          {
+            id: 'garments_reengage',
+            title: 'Wardrobe Refresh',
+            target: 'inactive',
+            discountPercent: 15,
+            offerCode: 'REFRESH15',
+            message: "Hello {name}! We haven't seen you lately at {restaurant}. Treat yourself this week with 15% OFF code {code}!",
+          },
+        ];
+      case 'Hardware & Sanitary':
+        return [
+          {
+            id: 'hardware_tools',
+            title: 'Tools & Hardware Offer',
+            target: 'all',
+            discountPercent: 10,
+            offerCode: 'BUILD10',
+            message: 'Hello {name}! Need tools or sanitary material? Get flat 10% OFF at {restaurant} on your purchase with code {code}!',
+          },
+          {
+            id: 'hardware_vip',
+            title: 'VIP Contractor Privilege',
+            target: 'vip',
+            discountPercent: 15,
+            offerCode: 'PROBUILD15',
+            message: 'Dear {name}, thank you for your ongoing partnership with {restaurant}! Enjoy 15% OFF your next order with code {code}.',
+          },
+          {
+            id: 'hardware_reengage',
+            title: 'Supply Discount',
+            target: 'inactive',
+            discountPercent: 12,
+            offerCode: 'TOOLS12',
+            message: 'Hello {name}! Looking for trusted hardware & sanitary goods? Visit {restaurant} this week and take 12% OFF with code {code}!',
+          },
+        ];
+      case 'Electronics & Mobile':
+        return [
+          {
+            id: 'electronics_fest',
+            title: 'Gadget & Tech Fest',
+            target: 'all',
+            discountPercent: 15,
+            offerCode: 'TECH15',
+            message: 'Hello {name}! Upgrade your tech at {restaurant}! Enjoy 15% OFF on gadgets & accessories with code {code}!',
+          },
+          {
+            id: 'electronics_vip',
+            title: 'VIP Tech Privilege',
+            target: 'vip',
+            discountPercent: 20,
+            offerCode: 'VIPTECH20',
+            message: 'Dear {name}, thank you for shopping at {restaurant}! Enjoy exclusive 20% OFF genuine accessories with code {code}.',
+          },
+          {
+            id: 'electronics_reengage',
+            title: 'Smart Upgrade Deal',
+            target: 'inactive',
+            discountPercent: 10,
+            offerCode: 'UPGRADE10',
+            message: 'Hello {name}! Ready for your next tech upgrade? Visit {restaurant} today and get 10% OFF with code {code}!',
+          },
+        ];
+      case 'Grocery & Supermarket':
+        return [
+          {
+            id: 'grocery_savings',
+            title: 'Supermarket Savings',
+            target: 'all',
+            discountPercent: 10,
+            offerCode: 'GROCERY10',
+            message: 'Hello {name}! Stock up on fresh groceries & daily essentials at {restaurant}! Flat 10% OFF on billing above ₹1000 with code {code}!',
+          },
+          {
+            id: 'grocery_vip',
+            title: 'VIP Family Basket',
+            target: 'vip',
+            discountPercent: 15,
+            offerCode: 'VIPBASKET15',
+            message: 'Dear {name}, thank you for being a valued shopper at {restaurant}! Take 15% OFF on your grocery bill with code {code}.',
+          },
+          {
+            id: 'grocery_reengage',
+            title: 'We Miss You Savings',
+            target: 'inactive',
+            discountPercent: 12,
+            offerCode: 'SAVINGS12',
+            message: 'Hello {name}! It has been a while since your last visit. Save 12% on your grocery basket today at {restaurant} with code {code}!',
+          },
+        ];
+      case 'Cafe':
+        return [
+          {
+            id: 'cafe_brew',
+            title: 'Coffee & Snacks Treat',
+            target: 'all',
+            discountPercent: 15,
+            offerCode: 'CAFE15',
+            message: 'Hello {name}! Craving your favorite brew & snacks? Enjoy 15% OFF your cafe bill at {restaurant} with code {code}!',
+          },
+          {
+            id: 'cafe_vip',
+            title: 'VIP Beverage Treat',
+            target: 'vip',
+            discountPercent: 20,
+            offerCode: 'VIPCAFE20',
+            message: 'Dear {name}, thank you for making {restaurant} your favorite hangout! Enjoy 20% OFF today with code {code}!',
+          },
+          {
+            id: 'cafe_reengage',
+            title: 'We Miss Your Vibe!',
+            target: 'inactive',
+            discountPercent: 15,
+            offerCode: 'CHILL15',
+            message: "Hello {name}! We haven't seen you lately at {restaurant}. Drop in this week and grab 15% OFF your favorites with code {code}!",
+          },
+        ];
+      case 'General Retail Store':
+        return [
+          {
+            id: 'retail_special',
+            title: 'Customer Appreciation',
+            target: 'all',
+            discountPercent: 15,
+            offerCode: 'RETAIL15',
+            message: 'Hello {name}! Thank you for shopping with {restaurant}. Enjoy 15% OFF on your next visit with code {code}!',
+          },
+          {
+            id: 'retail_vip',
+            title: 'VIP Member Privilege',
+            target: 'vip',
+            discountPercent: 20,
+            offerCode: 'VIPMEMBER20',
+            message: 'Dear {name}, as our honored customer at {restaurant}, enjoy 20% OFF on your purchase with code {code}!',
+          },
+          {
+            id: 'retail_reengage',
+            title: 'Welcome Back Discount',
+            target: 'inactive',
+            discountPercent: 10,
+            offerCode: 'WELCOME10',
+            message: 'Hello {name}! We miss seeing you at {restaurant}. Enjoy 10% OFF on your next billing with code {code}!',
+          },
+        ];
+      case 'Restaurant':
+      default:
+        return [
+          {
+            id: 'inactive_reengage',
+            title: 'We Miss You!',
+            target: 'inactive',
+            discountPercent: 15,
+            offerCode: 'MISSYOU15',
+            message: 'Hello {name}! It has been a while since your last visit. Treat yourself this week and enjoy 15% OFF at {restaurant} with code {code}!',
+          },
+          {
+            id: 'vip_appreciation',
+            title: 'VIP Loyalty Reward',
+            target: 'vip',
+            discountPercent: 20,
+            offerCode: 'VIPDESSERT',
+            message: 'Dear {name}, thank you for dining with us at {restaurant}! Enjoy a complimentary Chef Special Dessert & 20% OFF with code {code}.',
+          },
+          {
+            id: 'weekend_special',
+            title: 'Weekend Dining Special',
+            target: 'all',
+            discountPercent: 10,
+            offerCode: 'WEEKEND10',
+            message: 'Hello {name}! Dine with us this weekend at {restaurant} and enjoy 10% OFF on your table with code {code}!',
+          },
+        ];
+    }
+  };
+
+  const defaultTemplates = templates.length > 0 ? templates : getCategoryTemplates(category);
 
   return (
     <div>
@@ -335,7 +522,7 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
             {/* Phone Top Bar */}
             <div className="phone-header">
               <div className="phone-avatar">
-                🍽️
+                {categoryEmoji}
               </div>
               <div>
                 <div className="phone-title">{restaurantName}</div>

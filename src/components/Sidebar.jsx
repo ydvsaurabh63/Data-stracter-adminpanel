@@ -12,14 +12,30 @@ export const Sidebar = ({ currentTab, setCurrentTab, activeClient, onGoToSuperAd
   };
 
   const clientName = activeClient?.name || admin?.restaurantName || 'Restaurant';
+  const category = activeClient?.category || admin?.category || 'Restaurant';
+
+  const getCategoryEmoji = (cat) => {
+    switch (cat) {
+      case 'Cafe': return '☕';
+      case 'Garments & Fashion': return '👕';
+      case 'Hardware & Sanitary': return '🔧';
+      case 'Electronics & Mobile': return '📱';
+      case 'Grocery & Supermarket': return '🛒';
+      case 'General Retail Store': return '🏪';
+      case 'Restaurant':
+      default: return '🍽️';
+    }
+  };
+
+  const categoryEmoji = getCategoryEmoji(category);
 
   return (
     <>
       {/* Mobile & Tablet Top Header */}
       <div className="mobile-header">
         <div className="brand" onClick={() => handleTabClick('scan')}>
-          <div className="brand-icon" style={{ width: '34px', height: '34px' }}>
-            <UtensilsCrossed size={18} />
+          <div className="brand-icon" style={{ width: '34px', height: '34px', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {categoryEmoji}
           </div>
           <div className="brand-name" style={{ fontSize: '0.96rem' }}>
             {clientName}
@@ -46,8 +62,8 @@ export const Sidebar = ({ currentTab, setCurrentTab, activeClient, onGoToSuperAd
       <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-brand-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="brand" onClick={() => handleTabClick('scan')}>
-            <div className="brand-icon">
-              <UtensilsCrossed size={20} />
+            <div className="brand-icon" style={{ fontSize: '19px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {categoryEmoji}
             </div>
             <div>
               <div className="brand-name">{clientName}</div>

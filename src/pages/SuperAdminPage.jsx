@@ -67,6 +67,7 @@ export const SuperAdminPage = ({
     email: '',
     phone: '',
     password: '',
+    category: 'Restaurant',
     plan: 'Pro',
     status: 'active',
     address: '',
@@ -173,6 +174,7 @@ export const SuperAdminPage = ({
       email: '',
       phone: '',
       password: '',
+      category: 'Restaurant',
       plan: 'Pro',
       status: 'active',
       address: '',
@@ -189,6 +191,7 @@ export const SuperAdminPage = ({
       email: client.email || '',
       phone: client.phone || '',
       password: '',
+      category: client.category || 'Restaurant',
       plan: client.plan || 'Pro',
       status: client.status || 'active',
       address: client.address || '',
@@ -222,6 +225,7 @@ export const SuperAdminPage = ({
         ownerName: formData.ownerName.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
+        category: formData.category || 'Restaurant',
         plan: formData.plan,
         status: formData.status,
         address: formData.address.trim(),
@@ -505,6 +509,28 @@ export const SuperAdminPage = ({
                         <User size={13} color="#94a3b8" />
                         <span>Owner: <strong style={{ color: '#e2e8f0' }}>{client.ownerName}</strong></span>
                       </div>
+                      <div style={{ marginTop: '5px' }}>
+                        <span style={{
+                          fontSize: '0.72rem',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          background: 'rgba(255, 255, 255, 0.06)',
+                          border: '1px solid rgba(255, 255, 255, 0.12)',
+                          color: '#e2e8f0',
+                          fontWeight: 600,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}>
+                          {client.category === 'Cafe' && '☕ Cafe'}
+                          {client.category === 'Garments & Fashion' && '👕 Garments & Fashion'}
+                          {client.category === 'Hardware & Sanitary' && '🔧 Hardware & Sanitary'}
+                          {client.category === 'Electronics & Mobile' && '📱 Electronics & Mobile'}
+                          {client.category === 'Grocery & Supermarket' && '🛒 Grocery & Supermarket'}
+                          {client.category === 'General Retail Store' && '🏪 General Retail Store'}
+                          {(!client.category || client.category === 'Restaurant') && '🍽️ Restaurant'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -663,7 +689,7 @@ export const SuperAdminPage = ({
                       type="text"
                       className="sa-input"
                       required
-                      placeholder="e.g. Urban Wood Cafe"
+                      placeholder="e.g. Royal Fashion Hub"
                       value={formData.name}
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
@@ -674,22 +700,47 @@ export const SuperAdminPage = ({
 
                 <div className="sa-form-group">
                   <label className="sa-label">
-                    <span>Location / Address</span>
+                    <span>Business Category</span>
+                    <span className="sa-label-required">*</span>
                   </label>
                   <div className="sa-input-box">
-                    <div className="sa-input-icon">
-                      <MapPin size={16} />
-                    </div>
-                    <input
-                      type="text"
+                    <select
                       className="sa-input"
-                      placeholder="e.g. Sector 18, Noida"
-                      value={formData.address}
+                      value={formData.category || 'Restaurant'}
                       onChange={(e) =>
-                        setFormData({ ...formData, address: e.target.value })
+                        setFormData({ ...formData, category: e.target.value })
                       }
-                    />
+                      style={{ background: '#0f172a', color: '#f8fafc', cursor: 'pointer' }}
+                    >
+                      <option value="Restaurant">🍽️ Restaurant</option>
+                      <option value="Cafe">☕ Cafe</option>
+                      <option value="Garments & Fashion">👕 Garments & Fashion</option>
+                      <option value="Hardware & Sanitary">🔧 Hardware & Sanitary</option>
+                      <option value="Electronics & Mobile">📱 Electronics & Mobile</option>
+                      <option value="Grocery & Supermarket">🛒 Grocery & Supermarket</option>
+                      <option value="General Retail Store">🏪 General Retail Store</option>
+                    </select>
                   </div>
+                </div>
+              </div>
+
+              <div className="sa-form-group" style={{ marginBottom: '16px' }}>
+                <label className="sa-label">
+                  <span>Location / Address</span>
+                </label>
+                <div className="sa-input-box">
+                  <div className="sa-input-icon">
+                    <MapPin size={16} />
+                  </div>
+                  <input
+                    type="text"
+                    className="sa-input"
+                    placeholder="e.g. Sector 18, Noida"
+                    value={formData.address}
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
+                    }
+                  />
                 </div>
               </div>
 
@@ -724,7 +775,7 @@ export const SuperAdminPage = ({
 
                 <div className="sa-form-group">
                   <label className="sa-label">
-                    <span>Phone Number</span>
+                    <span>Phone Number (Digits only)</span>
                     <span className="sa-label-required">*</span>
                   </label>
                   <div className="sa-input-box">
@@ -737,8 +788,14 @@ export const SuperAdminPage = ({
                       required
                       placeholder="e.g. 9876543210"
                       value={formData.phone}
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={10}
                       onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
+                        setFormData({
+                          ...formData,
+                          phone: e.target.value.replace(/\D/g, '').slice(0, 10),
+                        })
                       }
                     />
                   </div>

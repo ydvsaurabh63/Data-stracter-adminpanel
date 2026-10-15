@@ -136,6 +136,9 @@ export const BillReviewModal = ({ extractedData, onClose, onSaved }) => {
               type="tel"
               className="form-input"
               value={customerPhone}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={10}
               onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
               placeholder="e.g. 9876543210"
               style={{ fontWeight: 600, fontSize: '1.05rem', letterSpacing: '0.04em' }}
