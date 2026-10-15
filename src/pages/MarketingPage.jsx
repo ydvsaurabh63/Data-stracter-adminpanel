@@ -18,6 +18,7 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
     'Hello {name}! It has been a while since your last visit. Treat yourself this week and enjoy 15% OFF with code {code}!'
   );
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   useEffect(() => {
     if (preselectedCustomer) {
@@ -85,6 +86,8 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
     const cleanPhone = '91' + selectedCustomer.phone.replace(/\D/g, '').slice(-10);
     const encodedText = encodeURIComponent(personalizedMessage);
     window.open(`https://wa.me/${cleanPhone}?text=${encodedText}`, '_blank');
+    setSuccessMsg(`WhatsApp chat opened for ${selectedCustomer.name}!`);
+    setTimeout(() => setSuccessMsg(''), 4000);
   };
 
   const category =
@@ -310,7 +313,7 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
         <h1 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Offers & WhatsApp</h1>
       </div>
 
-      {result && (
+      {successMsg && (
         <div style={{
           padding: '12px 18px',
           background: 'rgba(16, 185, 129, 0.15)',
@@ -325,7 +328,7 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
           fontWeight: 600,
         }}>
           <CheckCircle size={20} color="#10b981" />
-          <span>{result.message}</span>
+          <span>{successMsg}</span>
         </div>
       )}
 
