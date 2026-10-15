@@ -3,15 +3,15 @@ import { CheckCircle2, UserCheck, Sparkles, Plus, Trash2, X, AlertCircle } from 
 import { api } from '../services/api';
 
 export const BillReviewModal = ({ extractedData, onClose, onSaved }) => {
-  const { billImageUrl, extracted, customerMatch } = extractedData;
+  const { billImageUrl = '', extracted = {}, customerMatch = {} } = extractedData || {};
 
-  const [customerName, setCustomerName] = useState(extracted.customerName || '');
-  const [customerPhone, setCustomerPhone] = useState(extracted.customerPhone || '');
+  const [customerName, setCustomerName] = useState(extracted?.customerName || '');
+  const [customerPhone, setCustomerPhone] = useState(extracted?.customerPhone || '');
   const [paymentMethod, setPaymentMethod] = useState('Cash');
-  const [items, setItems] = useState(extracted.items || []);
-  const [subtotal, setSubtotal] = useState(extracted.subtotal || 0);
-  const [tax, setTax] = useState(extracted.tax || 0);
-  const [totalAmount, setTotalAmount] = useState(extracted.totalAmount || 0);
+  const [items, setItems] = useState(extracted?.items || []);
+  const [subtotal, setSubtotal] = useState(extracted?.subtotal || 0);
+  const [tax, setTax] = useState(extracted?.tax || 0);
+  const [totalAmount, setTotalAmount] = useState(extracted?.totalAmount || 0);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -110,21 +110,21 @@ export const BillReviewModal = ({ extractedData, onClose, onSaved }) => {
           padding: '10px 14px',
           borderRadius: '10px',
           marginBottom: '16px',
-          background: customerMatch.isExisting ? 'rgba(245, 158, 11, 0.12)' : 'rgba(99, 102, 241, 0.12)',
-          border: customerMatch.isExisting ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid rgba(99, 102, 241, 0.3)',
+          background: customerMatch?.isExisting ? 'rgba(245, 158, 11, 0.12)' : 'rgba(99, 102, 241, 0.12)',
+          border: customerMatch?.isExisting ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid rgba(99, 102, 241, 0.3)',
           display: 'flex',
           alignItems: 'center',
           gap: '10px'
         }}>
-          {customerMatch.isExisting ? (
+          {customerMatch?.isExisting ? (
             <UserCheck size={18} color="#f59e0b" />
           ) : (
             <Sparkles size={18} color="#818cf8" />
           )}
 
-          <div style={{ fontWeight: 700, fontSize: '0.9rem', color: customerMatch.isExisting ? '#fbbf24' : '#a5b4fc' }}>
-            {customerMatch.isExisting
-              ? `Returning Customer (Visit #${customerMatch.previousVisits + 1}) • ₹${customerMatch.previousTotalSpent.toLocaleString('en-IN')} spent`
+          <div style={{ fontWeight: 700, fontSize: '0.9rem', color: customerMatch?.isExisting ? '#fbbf24' : '#a5b4fc' }}>
+            {customerMatch?.isExisting
+              ? `Returning Customer (Visit #${(customerMatch?.previousVisits || 0) + 1}) • ₹${Number(customerMatch?.previousTotalSpent || 0).toLocaleString('en-IN')} spent`
               : 'New Customer (1st Visit)'}
           </div>
         </div>

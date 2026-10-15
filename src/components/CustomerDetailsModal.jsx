@@ -49,11 +49,11 @@ export const CustomerDetailsModal = ({ customerId, onClose, onSendOffer }) => {
     );
   }
 
-  if (!data) return null;
-
-  const { customer, bills, stats } = data;
-  const isVip = customer.visitsCount >= 5;
-  const isRegular = customer.visitsCount > 1 && customer.visitsCount < 5;
+  const customer = data?.customer || {};
+  const bills = data?.bills || [];
+  const stats = data?.stats || {};
+  const isVip = (customer.visitsCount || 0) >= 5;
+  const isRegular = (customer.visitsCount || 0) > 1 && (customer.visitsCount || 0) < 5;
   const initials = (customer.name || 'G').slice(0, 1).toUpperCase();
 
   // Avatar gradient
