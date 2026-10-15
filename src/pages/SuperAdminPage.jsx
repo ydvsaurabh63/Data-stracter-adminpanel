@@ -23,6 +23,7 @@ import {
   LogOut,
   User,
   FileText,
+  Store,
   Lock,
   Key,
   Eye,
