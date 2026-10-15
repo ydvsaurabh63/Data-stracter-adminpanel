@@ -90,7 +90,10 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
     }
   };
 
-  const category = activeClient?.category || admin?.category || 'Restaurant';
+  const category =
+    activeClient?.category ||
+    admin?.category ||
+    (restaurantName.toLowerCase().includes('cafe') ? 'Cafe' : 'Restaurant');
 
   const getCategoryEmoji = (cat) => {
     switch (cat) {

@@ -1,5 +1,20 @@
 import React, { useState } from 'react';
-import { Camera, LayoutDashboard, Users, MessageSquareQuote, LogOut, UtensilsCrossed, Menu, X } from 'lucide-react';
+import {
+  Camera,
+  LayoutDashboard,
+  Users,
+  MessageSquareQuote,
+  LogOut,
+  UtensilsCrossed,
+  Coffee,
+  ShoppingBag,
+  Wrench,
+  Smartphone,
+  ShoppingCart,
+  Store,
+  Menu,
+  X,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Sidebar = ({ currentTab, setCurrentTab, activeClient, onGoToSuperAdmin }) => {
@@ -14,28 +29,36 @@ export const Sidebar = ({ currentTab, setCurrentTab, activeClient, onGoToSuperAd
   const clientName = activeClient?.name || admin?.restaurantName || 'Restaurant';
   const category = activeClient?.category || admin?.category || 'Restaurant';
 
-  const getCategoryEmoji = (cat) => {
-    switch (cat) {
-      case 'Cafe': return '☕';
-      case 'Garments & Fashion': return '👕';
-      case 'Hardware & Sanitary': return '🔧';
-      case 'Electronics & Mobile': return '📱';
-      case 'Grocery & Supermarket': return '🛒';
-      case 'General Retail Store': return '🏪';
+  const renderBrandIcon = (size = 20) => {
+    const isCafe = category === 'Cafe' || clientName.toLowerCase().includes('cafe');
+    if (isCafe) {
+      return <Coffee size={size} strokeWidth={2.2} />;
+    }
+
+    switch (category) {
+      case 'Garments & Fashion':
+        return <ShoppingBag size={size} strokeWidth={2.2} />;
+      case 'Hardware & Sanitary':
+        return <Wrench size={size} strokeWidth={2.2} />;
+      case 'Electronics & Mobile':
+        return <Smartphone size={size} strokeWidth={2.2} />;
+      case 'Grocery & Supermarket':
+        return <ShoppingCart size={size} strokeWidth={2.2} />;
+      case 'General Retail Store':
+        return <Store size={size} strokeWidth={2.2} />;
       case 'Restaurant':
-      default: return '🍽️';
+      default:
+        return <UtensilsCrossed size={size} strokeWidth={2.2} />;
     }
   };
-
-  const categoryEmoji = getCategoryEmoji(category);
 
   return (
     <>
       {/* Mobile & Tablet Top Header */}
       <div className="mobile-header">
         <div className="brand" onClick={() => handleTabClick('scan')}>
-          <div className="brand-icon" style={{ width: '34px', height: '34px', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {categoryEmoji}
+          <div className="brand-icon" style={{ width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {renderBrandIcon(18)}
           </div>
           <div className="brand-name" style={{ fontSize: '0.96rem' }}>
             {clientName}
@@ -62,8 +85,8 @@ export const Sidebar = ({ currentTab, setCurrentTab, activeClient, onGoToSuperAd
       <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-brand-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="brand" onClick={() => handleTabClick('scan')}>
-            <div className="brand-icon" style={{ fontSize: '19px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {categoryEmoji}
+            <div className="brand-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {renderBrandIcon(20)}
             </div>
             <div>
               <div className="brand-name">{clientName}</div>
