@@ -13,34 +13,15 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           const res = await api.getMe();
-          if (res && res.success) {
+          if (res.success) {
             setAdmin(res.data);
-          } else {
-            const stored = localStorage.getItem('restaurant_admin');
-            if (stored) {
-              try {
-                setAdmin(JSON.parse(stored));
-              } catch {
-                logout();
-              }
-            } else {
-              logout();
-            }
-          }
-        } catch (err) {
-          console.error('Auth verification error:', err);
-          const stored = localStorage.getItem('restaurant_admin');
-          if (stored) {
-            try {
-              setAdmin(JSON.parse(stored));
-            } catch {
-              logout();
-            }
           } else {
             logout();
           }
+        } catch (err) {
+          console.error('Auth verification error:', err);
+          logout();
         }
-
       }
       setLoading(false);
     };

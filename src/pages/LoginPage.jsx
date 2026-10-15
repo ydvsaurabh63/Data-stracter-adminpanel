@@ -1,54 +1,14 @@
 import React, { useState } from 'react';
-import { UtensilsCrossed, Lock, User, ArrowRight, AlertCircle, ShieldCheck, Crown, CheckCircle2, KeyRound } from 'lucide-react';
+import { Lock, User, ArrowRight, AlertCircle, Crown } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 export const LoginPage = ({ onLogin }) => {
   const { login } = useAuth();
-  const [targetPortal, setTargetPortal] = useState(
-    window.location.hash === '#admin' || window.location.hash === '#superadmin' || window.location.search.includes('admin')
-      ? 'superadmin'
-      : (localStorage.getItem('app_view_mode') || 'superadmin')
-  );
-
-  const isSuper = targetPortal === 'superadmin';
-
-  const [username, setUsername] = useState(isSuper ? 'admin' : 'client');
-  const [password, setPassword] = useState(isSuper ? 'admin' : 'client');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const handlePortalSwitch = (portal) => {
-    setTargetPortal(portal);
-    localStorage.setItem('app_view_mode', portal);
-    window.location.hash = portal === 'superadmin' ? '#admin' : '#client';
-    if (portal === 'superadmin') {
-      setUsername('admin');
-      setPassword('admin');
-    } else {
-      setUsername('client');
-      setPassword('client');
-    }
-    setError('');
-  };
-
-  const handleFillAdmin = () => {
-    setTargetPortal('superadmin');
-    localStorage.setItem('app_view_mode', 'superadmin');
-    window.location.hash = '#admin';
-    setUsername('admin');
-    setPassword('admin');
-    setError('');
-  };
-
-  const handleFillClient = () => {
-    setTargetPortal('client');
-    localStorage.setItem('app_view_mode', 'client');
-    window.location.hash = '#client';
-    setUsername('client');
-    setPassword('client');
-    setError('');
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,40 +21,20 @@ export const LoginPage = ({ onLogin }) => {
     setError('');
 
     try {
-      const cleanUser = username.trim().toLowerCase();
-      
-      // Auto-detect portal based on what the user actually typed
-      let detectedPortal = targetPortal;
-      if (cleanUser === 'admin' || cleanUser.includes('admin') || cleanUser === 'owner@restaurant.com') {
-        detectedPortal = 'superadmin';
-      } else if (cleanUser === 'client' || cleanUser.includes('client') || cleanUser.includes('grandspice') || cleanUser === 'owner@grandspice.com') {
-        detectedPortal = 'client';
-      }
-
       const res = await api.login(username, password);
-
-      if (res && res.success) {
-        // Resolve portal from server response role or auto-detection
-        const finalPortal = res.data?.role === 'superadmin'
-          ? 'superadmin'
-          : (res.data?.role === 'client' ? 'client' : detectedPortal);
-
-        if (res.data?.clientId) {
-          localStorage.setItem('active_client_id', res.data.clientId);
-        }
-
-        localStorage.setItem('app_view_mode', finalPortal);
-        window.location.hash = finalPortal === 'superadmin' ? '#admin' : '#client';
-
+      if (res.success) {
+        const userRole = res.data?.role || (username.toLowerCase().includes('client') ? 'client' : 'superadmin');
+        localStorage.setItem('app_view_mode', userRole);
+        window.location.hash = userRole === 'superadmin' ? '#admin' : '#client';
         if (onLogin) {
-          onLogin(finalPortal);
+          onLogin(userRole);
         }
         login(res.data, res.data.token);
       } else {
-        setError(res?.message || 'Invalid credentials. Admin: admin / admin | Client: client / client');
+        setError(res.message || 'Invalid credentials');
       }
     } catch (err) {
-      setError('Unable to authenticate. Make sure backend server is reachable.');
+      setError('Unable to connect to backend server. Make sure server is running.');
     } finally {
       setLoading(false);
     }
@@ -106,94 +46,52 @@ export const LoginPage = ({ onLogin }) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '24px 16px',
-      background: 'radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.08) 0%, rgba(10, 14, 23, 1) 75%)',
+      padding: '20px',
+      backgroundColor: '#0a0e17',
     }}>
-      <div className="card" style={{ maxWidth: '460px', width: '100%', padding: '36px 30px' }}>
-        
-        {/* Portal Switcher Tabs */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '6px',
-          background: 'rgba(255, 255, 255, 0.04)',
-          padding: '4px',
-          borderRadius: '12px',
-          marginBottom: '26px',
-          border: '1px solid rgba(255, 255, 255, 0.08)'
-        }}>
-          <button
-            type="button"
-            onClick={() => handlePortalSwitch('superadmin')}
-            style={{
-              padding: '10px 12px',
-              borderRadius: '9px',
-              border: isSuper ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid transparent',
-              background: isSuper ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.32))' : 'transparent',
-              color: isSuper ? '#f59e0b' : '#94a3b8',
-              fontWeight: 700,
-              fontSize: '0.86rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            <Crown size={16} />
-            <span>Master Admin</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handlePortalSwitch('client')}
-            style={{
-              padding: '10px 12px',
-              borderRadius: '9px',
-              border: !isSuper ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid transparent',
-              background: !isSuper ? 'rgba(245, 158, 11, 0.2)' : 'transparent',
-              color: !isSuper ? '#f59e0b' : '#94a3b8',
-              fontWeight: 700,
-              fontSize: '0.86rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            <UtensilsCrossed size={16} />
-            <span>Client Portal</span>
-          </button>
-        </div>
-
-        {/* Portal Header */}
-        <div style={{ textAlign: 'center', marginBottom: '26px' }}>
+      <div style={{
+        maxWidth: '430px',
+        width: '100%',
+        padding: '36px 30px',
+        background: 'rgba(15, 23, 42, 0.75)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        borderRadius: '20px',
+        backdropFilter: 'blur(16px)',
+        boxShadow: '0 20px 45px rgba(0, 0, 0, 0.5)',
+      }}>
+        {/* Crown Icon with Golden/Amber Glow */}
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{
-            width: '58px',
-            height: '58px',
-            margin: '0 auto 16px',
-            borderRadius: '16px',
-            background: isSuper
-              ? 'linear-gradient(135deg, #f59e0b, #b45309)'
-              : 'linear-gradient(135deg, #10b981, #047857)',
+            width: '64px',
+            height: '64px',
+            margin: '0 auto 18px',
+            borderRadius: '18px',
+            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: isSuper ? '0 8px 24px rgba(245, 158, 11, 0.35)' : '0 8px 24px rgba(16, 185, 129, 0.35)',
-            transition: 'all 0.3s ease',
+            boxShadow: '0 8px 24px rgba(245, 158, 11, 0.4)',
           }}>
-            {isSuper ? <Crown size={30} color="#000" /> : <UtensilsCrossed size={30} color="#fff" />}
+            <Crown size={32} color="#000" strokeWidth={2.2} />
           </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>
-            {isSuper ? 'Master Super Admin' : 'Restaurant Client Portal'}
+
+          <h1 style={{
+            fontSize: '1.7rem',
+            fontWeight: 800,
+            letterSpacing: '-0.02em',
+            color: '#ffffff',
+            margin: '0 0 6px 0',
+          }}>
+            Sign In Portal
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.86rem', marginTop: '6px' }}>
-            {isSuper
-              ? 'Multi-Tenant Restaurant & System Management'
-              : 'Bill Scanner & Customer CRM Workspace'}
+
+          <p style={{
+            color: '#94a3b8',
+            fontSize: '0.92rem',
+            margin: 0,
+            fontWeight: 400,
+          }}>
+            Multi-Tenant Restaurant & Client Management
           </p>
         </div>
 
@@ -208,132 +106,127 @@ export const LoginPage = ({ onLogin }) => {
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            fontSize: '0.86rem',
+            fontSize: '0.88rem',
           }}>
-            <AlertCircle size={18} style={{ flexShrink: 0 }} />
+            <AlertCircle size={18} />
             <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Username or Email</span>
-              <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                {isSuper ? 'e.g. admin' : 'e.g. client or owner@grandspice.com'}
-              </span>
+          <div style={{ marginBottom: '18px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              color: '#8da2bc',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              marginBottom: '8px',
+            }}>
+              USERNAME OR EMAIL
             </label>
-            <div style={{ position: 'relative' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              background: '#0d1527',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '10px',
+              padding: '0 14px',
+              height: '48px',
+              transition: 'border-color 0.2s',
+            }}>
+              <User size={18} color="#64748b" style={{ marginRight: '10px', flexShrink: 0 }} />
               <input
                 type="text"
-                className="form-input"
-                style={{ paddingLeft: '38px' }}
-                placeholder={isSuper ? 'admin' : 'client'}
+                placeholder=""
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                autoComplete="off"
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: '#ffffff',
+                  fontSize: '0.95rem',
+                  fontFamily: 'inherit',
+                }}
               />
-              <User size={18} style={{ position: 'absolute', left: '12px', top: '13px', color: '#64748b' }} />
             </div>
           </div>
 
-          <div className="form-group" style={{ marginBottom: '24px' }}>
-            <label className="form-label">Password</label>
-            <div style={{ position: 'relative' }}>
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              color: '#8da2bc',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              marginBottom: '8px',
+            }}>
+              PASSWORD
+            </label>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              background: '#0d1527',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '10px',
+              padding: '0 14px',
+              height: '48px',
+              transition: 'border-color 0.2s',
+            }}>
+              <Lock size={18} color="#64748b" style={{ marginRight: '10px', flexShrink: 0 }} />
               <input
                 type="password"
-                className="form-input"
-                style={{ paddingLeft: '38px' }}
-                placeholder="••••••••"
+                placeholder=""
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: '#ffffff',
+                  fontSize: '0.95rem',
+                  fontFamily: 'inherit',
+                }}
               />
-              <Lock size={18} style={{ position: 'absolute', left: '12px', top: '13px', color: '#64748b' }} />
             </div>
           </div>
 
           <button
             type="submit"
-            className="btn btn-primary"
-            style={{ width: '100%', padding: '13px', fontSize: '1rem', fontWeight: 700 }}
             disabled={loading}
+            style={{
+              width: '100%',
+              height: '48px',
+              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+              color: '#0a0e17',
+              border: 'none',
+              borderRadius: '10px',
+              fontSize: '1rem',
+              fontWeight: 700,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              boxShadow: '0 6px 20px rgba(245, 158, 11, 0.35)',
+              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+            }}
           >
             {loading ? 'Authenticating...' : (
               <>
-                <span>Sign In to {isSuper ? 'Master Admin' : 'Client Portal'}</span>
-                <ArrowRight size={18} />
+                <span>Sign In to Portal</span>
+                <ArrowRight size={18} strokeWidth={2.5} />
               </>
             )}
           </button>
         </form>
-
-        {/* Quick One-Click Fill Buttons */}
-        <div style={{
-          marginTop: '22px',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '8px',
-        }}>
-          <button
-            type="button"
-            onClick={handleFillAdmin}
-            className="btn btn-secondary"
-            style={{
-              padding: '8px 10px',
-              fontSize: '0.8rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              borderColor: isSuper ? 'rgba(245, 158, 11, 0.4)' : undefined,
-            }}
-          >
-            <Crown size={14} color="#f59e0b" />
-            <span>Fill Admin</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleFillClient}
-            className="btn btn-secondary"
-            style={{
-              padding: '8px 10px',
-              fontSize: '0.8rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              borderColor: !isSuper ? 'rgba(16, 185, 129, 0.4)' : undefined,
-            }}
-          >
-            <UtensilsCrossed size={14} color="#10b981" />
-            <span>Fill Client</span>
-          </button>
-        </div>
-
-        {/* Credentials Info Badge */}
-        <div style={{
-          marginTop: '20px',
-          padding: '12px 14px',
-          background: 'rgba(255, 255, 255, 0.03)',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: '10px',
-          fontSize: '0.8rem',
-          color: '#94a3b8',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#cbd5e1', fontWeight: 600, marginBottom: '6px' }}>
-            <KeyRound size={14} color="#f59e0b" />
-            <span>Default Login Credentials</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
-            <span>👑 <strong>Admin Portal:</strong></span>
-            <span style={{ color: '#f59e0b', fontFamily: 'monospace' }}>admin / admin</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>🍽️ <strong>Client Portal:</strong></span>
-            <span style={{ color: '#10b981', fontFamily: 'monospace' }}>client / client</span>
-          </div>
-        </div>
-
       </div>
     </div>
   );
