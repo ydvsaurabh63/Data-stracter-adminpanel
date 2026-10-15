@@ -464,28 +464,13 @@ export const SuperAdminPage = ({
                       {initials}
                     </div>
                     <div>
-                      <div className="client-name-row">
-                        <h3 className="client-restaurant-name">{client.name}</h3>
-                        <span className={`client-plan-pill ${client.plan?.toLowerCase() || 'pro'}`}>
-                          {client.plan || 'Pro'}
-                        </span>
-                      </div>
+                      <h3 className="client-restaurant-name">{client.name}</h3>
                       <div className="client-owner-sub">
                         <User size={13} color="#94a3b8" />
                         <span>Owner: <strong style={{ color: '#e2e8f0' }}>{client.ownerName}</strong></span>
                       </div>
                     </div>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleToggleStatus(client)}
-                    className={`client-status-badge ${client.status}`}
-                    title="Click to toggle status"
-                  >
-                    <span className="status-dot"></span>
-                    <span>{client.status}</span>
-                  </button>
                 </div>
 
                 {/* Contact Meta Box */}
