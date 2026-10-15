@@ -10,7 +10,7 @@ import { MarketingPage } from './pages/MarketingPage';
 import { api } from './services/api';
 
 function AppContent() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, admin } = useAuth();
   const [viewMode, setViewMode] = useState(
     localStorage.getItem('app_view_mode') || 'superadmin'
   ); // 'superadmin' | 'client'
@@ -21,15 +21,39 @@ function AppContent() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Fetch Clients List
-  const loadClients = async () => {
+  const loadClients = async (preferredClientId) => {
     try {
       const res = await api.getClients();
       if (res.success && res.data?.length > 0) {
         setClients(res.data);
-        const storedClientId = localStorage.getItem('active_client_id');
-        const found = res.data.find((c) => c._id === storedClientId) || res.data[0];
+        const storedId = localStorage.getItem('active_client_id');
+        const targetId = preferredClientId || storedId;
+
+        let found = null;
+        // If logged-in user is a client account, strictly bind to their restaurant record
+        if (admin && (admin.role === 'client' || admin.clientId)) {
+          const clientIdentifier = admin.clientId || admin._id;
+          found = res.data.find(
+            (c) =>
+              c._id === clientIdentifier ||
+              (c.email && admin.email && c.email.toLowerCase() === admin.email.toLowerCase())
+          );
+        }
+
+        // If not found or user is superadmin, match by targetId
+        if (!found && targetId) {
+          found = res.data.find((c) => c._id === targetId);
+        }
+
+        // Fallback
+        if (!found) {
+          found = res.data[0];
+        }
+
         setActiveClient(found);
-        localStorage.setItem('active_client_id', found._id);
+        if (found) {
+          localStorage.setItem('active_client_id', found._id);
+        }
       }
     } catch (err) {
       console.error('Failed to load clients:', err);
@@ -38,15 +62,23 @@ function AppContent() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      const mode = localStorage.getItem('app_view_mode') || 'superadmin';
+      const isClientRole = admin?.role === 'client';
+      const mode = isClientRole ? 'client' : (localStorage.getItem('app_view_mode') || 'superadmin');
       setViewMode(mode);
-      loadClients();
+      localStorage.setItem('app_view_mode', mode);
+      const targetClientId = admin?.clientId || (isClientRole ? admin?._id : null) || localStorage.getItem('active_client_id');
+      loadClients(targetClientId);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, admin]);
 
   // URL routing & Master key shortcut (Ctrl + Shift + A or Alt + A) to toggle Super Admin portal
   useEffect(() => {
     const checkUrlRoute = () => {
+      if (admin?.role === 'client') {
+        setViewMode('client');
+        localStorage.setItem('app_view_mode', 'client');
+        return;
+      }
       const hash = window.location.hash.toLowerCase();
       const search = window.location.search.toLowerCase();
       if (hash === '#admin' || hash === '#superadmin' || search.includes('admin=true') || search.includes('admin=1')) {
@@ -62,6 +94,7 @@ function AppContent() {
     window.addEventListener('hashchange', checkUrlRoute);
 
     const handleKeyDown = (e) => {
+      if (admin?.role === 'client') return; // Do not allow client accounts to toggle superadmin
       if ((e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) || (e.altKey && (e.key === 'a' || e.key === 'A'))) {
         e.preventDefault();
         setViewMode((prev) => {
@@ -73,6 +106,7 @@ function AppContent() {
     };
     window.addEventListener('keydown', handleKeyDown);
     window.openSuperAdmin = () => {
+      if (admin?.role === 'client') return;
       localStorage.setItem('app_view_mode', 'superadmin');
       setViewMode('superadmin');
     };
@@ -80,7 +114,7 @@ function AppContent() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('hashchange', checkUrlRoute);
     };
-  }, []);
+  }, [admin]);
 
   if (loading) {
     return (
@@ -104,9 +138,13 @@ function AppContent() {
   if (!isAuthenticated) {
     return (
       <LoginPage
-        onLogin={(portal) => {
+        onLogin={(portal, targetClientId) => {
           setViewMode(portal);
           localStorage.setItem('app_view_mode', portal);
+          if (targetClientId) {
+            localStorage.setItem('active_client_id', targetClientId);
+            loadClients(targetClientId);
+          }
         }}
       />
     );

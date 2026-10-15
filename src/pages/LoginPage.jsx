@@ -24,10 +24,17 @@ export const LoginPage = ({ onLogin }) => {
       const res = await api.login(username, password);
       if (res.success) {
         const userRole = res.data?.role || (username.toLowerCase().includes('client') ? 'client' : 'superadmin');
+        const targetClientId = res.data?.clientId || (userRole === 'client' ? res.data?._id : null);
+
         localStorage.setItem('app_view_mode', userRole);
+        if (targetClientId) {
+          localStorage.setItem('active_client_id', targetClientId);
+        } else {
+          localStorage.removeItem('active_client_id');
+        }
         window.location.hash = userRole === 'superadmin' ? '#admin' : '#client';
         if (onLogin) {
-          onLogin(userRole);
+          onLogin(userRole, targetClientId);
         }
         login(res.data, res.data.token);
       } else {

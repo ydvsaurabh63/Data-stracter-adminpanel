@@ -4,7 +4,14 @@ import { api } from '../services/api';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [admin, setAdmin] = useState(null);
+  const [admin, setAdmin] = useState(() => {
+    try {
+      const stored = localStorage.getItem('restaurant_admin');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
   const [token, setToken] = useState(localStorage.getItem('restaurant_token') || null);
   const [loading, setLoading] = useState(true);
 
@@ -13,9 +20,14 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           const res = await api.getMe();
-          if (res.success) {
+          if (res.success && res.data) {
             setAdmin(res.data);
-          } else {
+            localStorage.setItem('restaurant_admin', JSON.stringify(res.data));
+            const targetClientId = res.data?.clientId || (res.data?.role === 'client' ? res.data?._id : null);
+            if (targetClientId) {
+              localStorage.setItem('active_client_id', targetClientId);
+            }
+          } else if (!res.success) {
             logout();
           }
         } catch (err) {
@@ -34,6 +46,12 @@ export const AuthProvider = ({ children }) => {
     setToken(authToken);
     localStorage.setItem('restaurant_token', authToken);
     localStorage.setItem('restaurant_admin', JSON.stringify(adminData));
+    const targetClientId = adminData?.clientId || (adminData?.role === 'client' ? adminData?._id : null);
+    if (targetClientId) {
+      localStorage.setItem('active_client_id', targetClientId);
+    } else {
+      localStorage.removeItem('active_client_id');
+    }
   };
 
   const updateUser = (updatedData, newToken) => {
@@ -50,6 +68,8 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     localStorage.removeItem('restaurant_token');
     localStorage.removeItem('restaurant_admin');
+    localStorage.removeItem('active_client_id');
+    localStorage.removeItem('app_view_mode');
   };
 
   return (
