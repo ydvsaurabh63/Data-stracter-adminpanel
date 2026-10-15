@@ -327,22 +327,6 @@ export const MarketingPage = ({ preselectedCustomer, activeClient }) => {
               <span>{sending ? 'Dispatching Campaign...' : (selectedCustomer ? 'Record Campaign & Open WhatsApp' : 'Dispatch WhatsApp Campaign (Bulk)')}</span>
             </button>
           </div>
-
-          {/* Quick Notice about WhatsApp sending */}
-          <div style={{
-            marginTop: '16px',
-            padding: '12px 14px',
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '10px',
-            fontSize: '0.8rem',
-            color: '#94a3b8',
-            lineHeight: 1.5
-          }}>
-            <strong style={{ color: '#f8fafc', display: 'block', marginBottom: '4px' }}>💬 How WhatsApp Sending Works:</strong>
-            1. <strong>Direct Send (Instant &amp; Free)</strong>: Click green button to open WhatsApp Web/App with message ready to send to this customer.<br />
-            2. <strong>Automated Server API</strong>: Background automatic bulk sending requires Meta WhatsApp Business Cloud API keys in backend <code style={{ color: '#38bdf8' }}>.env</code>.
-          </div>
         </div>
 
         {/* Right Column: Realistic WhatsApp Phone Mockup */}
